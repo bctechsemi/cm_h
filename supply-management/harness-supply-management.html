@@ -161,7 +161,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--blue-d)}
         <tbody></tbody>
       </table>
     </div>
-    <p class="muted" style="margin:10px 0 0">순소요 = 세트당 수량 × 발주 세트 수 (도면 그대로). 사급 필요 = 순소요 × (1 + 여유율), 올림. 종합 탭은 세 모델의 같은 품번을 합산하며, 입고 검수는 종합 탭에서 합니다. 전선은 m 단위(케이블 길이 합계 기준, 탈피·절단 손실은 여유율로 반영). 넘버링 튜브·링단자·펜홀(페룰)은 기본값을 '자체'로 두었습니다. 조달 구분을 누르면 바꿀 수 있습니다.</p>
+    <p class="muted" style="margin:10px 0 0">순소요 = 세트당 수량 × 발주 세트 수 (도면 그대로). 사급 필요 = 순소요 × (1 + 여유율), 올림. 종합 탭은 세 모델의 같은 품번을 합산하며, 입고 검수는 종합 탭에서 합니다. 전선은 m 단위(케이블 길이 합계 기준, 탈피·절단 손실은 여유율로 반영). 넘버링 튜브·링단자·펜홀(페룰)은 기본값을 '도급'으로 두었습니다. 조달 구분을 누르면 바꿀 수 있습니다.</p>
   </div>
 
   <div class="card" id="cblCard">
@@ -179,7 +179,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--blue-d)}
 /* =========================================================
    부품 마스터
    cat: con(커넥터/하우징) pin(핀) acc(글랜드/부자재) wire(전선) term(단자) tube(튜브) unit(완제품)
-   sup: 기본 조달 (true=사급, false=자체)
+   sup: 기본 조달 (true=사급, false=도급)
    ========================================================= */
 const CATS={con:'커넥터 / 하우징',pin:'핀 (Terminal)',acc:'케이블 글랜드 / 부자재',unit:'완제품 부품',wire:'전선',term:'단자 (링 / 펜홀)',tube:'넘버링 튜브'};
 const CAT_ORDER=['con','pin','acc','unit','wire','term','tube'];
@@ -210,7 +210,7 @@ const P={
  'P-770520-1':{cat:'pin',pn:'770520-1',name:'Pin TE AMPSEAL 20~16AWG',unit:'ea',sup:true},
 
  'G-09000005164':{cat:'acc',pn:'09000005164',name:'Cable Gland (HARTING M20)',unit:'ea',sup:true},
- 'G-JOPG-9':{cat:'acc',pn:'JOPG-9',name:'Cable Gland 정오사 PG9 (Lock nut 분리 포장)',unit:'ea',sup:true},
+ 'G-JOPG-9':{cat:'acc',pn:'JOPG-9',name:'Cable Gland JEONO PG9 (Lock nut 분리 포장)',unit:'ea',sup:true},
 
  'U-FAN':{cat:'unit',pn:'DC FAN',name:'DC FAN (리드선 포함)',unit:'ea',sup:true},
  'U-363010':{cat:'unit',pn:'363010-D01',name:'전원 코드 (Plug) 2,500mm',unit:'ea',sup:true},
@@ -401,7 +401,7 @@ function renderKpis(){
   }
 }
 const STL={ok:'충족',bad:'부족',over:'초과',none:'미입력',na:'해당없음'};
-const supSw=r=>`<span class="sw" data-p="${r.pid}"><button class="${r.sup?'on':''}" data-v="1">사급</button><button class="${r.sup?'':'on self'}" data-v="0">자체</button></span>`;
+const supSw=r=>`<span class="sw" data-p="${r.pid}"><button class="${r.sup?'on':''}" data-v="1">사급</button><button class="${r.sup?'':'on self'}" data-v="0">도급</button></span>`;
 const nameCell=p=>`${esc(p.name)}${p.note?`<div class="note">${esc(p.note)}</div>`:''}`;
 const shortName=m=>m.name.replace('L3 PRIME ','').replace('L3 ','');
 function renderTable(){
@@ -483,12 +483,12 @@ $('bCsv').onclick=()=>{
   let lines,name;
   if(isSum()){
     lines=[['구분','품번','품명','단위',...MODELS.map(m=>`${m.name}(${S.sets[m.id]||0}세트)`),'순소요 합계','사급 필요(여유 포함)','입고수량','과부족','판정','조달'],
-      ...sumRows().map(r=>{const p=P[r.pid];return[CATS[p.cat],p.pn,p.name,p.unit,...MODELS.map(m=>r.by[m.id]===undefined?'':+r.by[m.id].toFixed(2)),+r.net.toFixed(2),r.req,r.has?r.rcv:'',r.has?r.diff:'',STL[r.st],r.sup?'사급':'자체']})];
+      ...sumRows().map(r=>{const p=P[r.pid];return[CATS[p.cat],p.pn,p.name,p.unit,...MODELS.map(m=>r.by[m.id]===undefined?'':+r.by[m.id].toFixed(2)),+r.net.toFixed(2),r.req,r.has?r.rcv:'',r.has?r.diff:'',STL[r.st],r.sup?'사급':'도급']})];
     name='사급품_종합';
   }else{
     const m=model();
     lines=[['구분','품번','품명','단위','세트당','세트수','순소요','사급 필요(여유 포함)','조달','사용케이블'],
-      ...modelRows(m).map(r=>{const p=P[r.pid];return[CATS[p.cat],p.pn,p.name,p.unit,+r.per.toFixed(2),S.sets[m.id]||0,+r.net.toFixed(2),r.req,r.sup?'사급':'자체',r.cables.join(' ')]})];
+      ...modelRows(m).map(r=>{const p=P[r.pid];return[CATS[p.cat],p.pn,p.name,p.unit,+r.per.toFixed(2),S.sets[m.id]||0,+r.net.toFixed(2),r.req,r.sup?'사급':'도급',r.cables.join(' ')]})];
     name='사급품_'+m.name.replace(/\s/g,'_');
   }
   const csv='﻿'+lines.map(l=>l.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\r\n');
