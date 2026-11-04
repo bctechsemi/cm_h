@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>케이블 하네스 사급품 관리</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/bctechsemi/bct/refs/heads/main/images/bct_favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root{
+  --blue:#1F4E9C; --blue-d:#153B78; --blue-l:#E8EEF8; --blue-m:#C9D7EE;
+  --ink:#1B2433; --ink-2:#4A5568; --ink-3:#5F6B7E; --line:#DDE3EC; --bg:#F5F7FA; --card:#FFFFFF;
+  --ok:#1E8E5A; --ok-l:#E3F4EC; --bad:#C62E2E; --bad-l:#FCE8E8; --warn:#B7791F; --warn-l:#FDF3E1;
+  --mono:"JetBrains Mono",Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 "Pretendard","Pretendard Variable",-apple-system,"Malgun Gothic",sans-serif}
+header{background:#fff;color:var(--ink);padding:10px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;border-bottom:3px solid var(--blue)}
+header .logo{height:46px;width:auto;display:block}
+header .divider{width:1px;height:34px;background:var(--line)}
+header h1{font-size:18px;margin:0;font-weight:700;letter-spacing:-.2px;color:var(--blue-d)}
+header .sub{color:var(--ink-3);font-size:12.5px}
+header .sp{flex:1}
+.btn{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:6px;padding:7px 12px;font:inherit;font-size:13px;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:var(--blue);color:var(--blue)}
+.btn.pri{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn.pri:hover{background:var(--blue-d);color:#fff}
+.btn.ghost{background:#fff;color:var(--blue);border-color:var(--blue-m)}
+.btn.ghost:hover{background:var(--blue-l);color:var(--blue-d);border-color:var(--blue)}
+.btn.sm{padding:4px 9px;font-size:12px}
+.btn.danger:hover{border-color:var(--bad);color:var(--bad)}
+main{max-width:1440px;margin:0 auto;padding:18px 24px 60px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.tab{padding:10px 16px;border-radius:8px;background:#fff;border:1px solid var(--line);cursor:pointer;text-align:left}
+.tab b{display:block;font-size:14px}
+.tab span{font-size:11.5px;color:var(--ink-3);font-family:var(--mono)}
+.tab.on{background:var(--blue);border-color:var(--blue);color:#fff}
+.tab.on span{color:#cfdcf2}
+.tab{display:flex;flex-direction:column;gap:6px;min-width:200px}
+.tab .setq{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600}
+.tab .setq input{width:64px;text-align:right;font:600 15px var(--mono);border:1px solid var(--line);border-radius:6px;padding:4px 6px;background:#fff;color:var(--ink)}
+.tab.on .setq{color:#fff}
+.tab.on .setq input{border-color:#fff}
+.tab .setq input:focus{outline:2px solid var(--blue-m)}
+.tab.sum{min-width:150px;justify-content:center}
+.tab.sum .tot{font:600 13px var(--mono)}
+td.mdl{font-family:var(--mono);text-align:right;white-space:nowrap;color:var(--ink-2)}
+td.mdl.zero{color:#C3CAD5}
+th.grp{text-align:center}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:14px}
+.card h2{font-size:15px;margin:0 0 12px;display:flex;align-items:center;gap:8px}
+.card h2 .tag{font-size:11px;font-weight:500;background:var(--blue-l);color:var(--blue);padding:2px 8px;border-radius:10px}
+.row{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:12px;color:var(--ink-2)}
+.field input,.field select,.field textarea{border:1px solid var(--line);border-radius:6px;padding:7px 9px;font:inherit;font-size:13px;background:#fff;color:var(--ink)}
+.field input:focus,.field select:focus,.field textarea:focus{outline:2px solid var(--blue-m);border-color:var(--blue)}
+.field input.num{width:90px;text-align:right;font-family:var(--mono)}
+.docinfo{font-size:12.5px;color:var(--ink-2);display:flex;gap:18px;flex-wrap:wrap}
+.docinfo code{font-family:var(--mono);color:var(--ink)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:4px}
+.kpi{border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.kpi .l{font-size:11.5px;color:var(--ink-3)}
+.kpi .v{font-size:22px;font-weight:700;font-family:var(--mono)}
+.kpi.bad .v{color:var(--bad)} .kpi.ok .v{color:var(--ok)} .kpi.warn .v{color:var(--warn)}
+.tblwrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--blue-l);color:var(--blue-d);font-weight:600;text-align:left;padding:8px 8px;border-bottom:1px solid var(--blue-m);white-space:nowrap;position:sticky;top:0}
+td{padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+td.n,th.n{text-align:right;font-family:var(--mono);white-space:nowrap}
+td.pn{font-family:var(--mono);font-weight:600;white-space:nowrap}
+tr.cat td{background:#FAFBFD;font-weight:700;color:var(--ink-2);font-size:12px;letter-spacing:.3px}
+tr.self td{color:var(--ink-3)}
+tr.self td.pn{font-weight:400}
+td input.rcv{width:84px;text-align:right;font-family:var(--mono);border:1px solid var(--line);border-radius:5px;padding:4px 6px}
+td input.rcv:focus{outline:2px solid var(--blue-m)}
+.st{display:inline-block;font-size:11.5px;padding:2px 8px;border-radius:10px;font-weight:600;white-space:nowrap}
+.st.ok{background:var(--ok-l);color:var(--ok)} .st.bad{background:var(--bad-l);color:var(--bad)} .st.none{background:#EEF1F5;color:var(--ink-3)} .st.over{background:var(--warn-l);color:var(--warn)}
+.diff.bad{color:var(--bad);font-weight:700} .diff.ok{color:var(--ok)}
+.chips{display:flex;gap:4px;flex-wrap:wrap}
+.chip{font-family:var(--mono);font-size:11px;background:#EEF1F5;color:var(--ink-2);padding:1px 6px;border-radius:4px;cursor:default}
+.note{font-size:11.5px;color:var(--warn)}
+.sw{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.sw button{border:0;background:#fff;padding:3px 8px;font-size:11.5px;cursor:pointer;color:var(--ink-3)}
+.sw button.on{background:var(--blue);color:#fff}
+.sw button.on.self{background:#6B7280}
+.grid2{display:grid;grid-template-columns:1fr;gap:14px}
+.cables{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:10px}
+.cbl{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:#fff}
+.cbl h3{margin:0 0 2px;font-size:13px}
+.cbl .cpn{font-family:var(--mono);font-size:11.5px;color:var(--blue)}
+.cbl .meta{font-size:11px;color:var(--ink-3);margin-bottom:6px}
+.cbl table{font-size:12px}
+.cbl td{padding:3px 4px}
+.lotbar{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+.muted{color:var(--ink-3);font-size:12px}
+.filters{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.filters label{font-size:12.5px;color:var(--ink-2);display:flex;gap:5px;align-items:center}
+details summary{cursor:pointer;font-weight:600;color:var(--blue-d)}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 16px;border-radius:8px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:99}
+.toast.show{opacity:1}
+#printArea{display:none}
+@media (max-width:700px){main{padding:12px}header{padding:12px}.cables{grid-template-columns:1fr}}
+@media print{
+  body{background:#fff}
+  header,main{display:none!important}
+  #printArea{display:block!important;font-size:11.5px}
+  #printArea h1{font-size:17px;margin:0 0 4px}
+  #printArea table{font-size:11px}
+  #printArea th{position:static}
+  @page{size:A4;margin:12mm}
+}
+</style>
+</head>
+<body>
+<header>
+  <img class="logo" src="https://raw.githubusercontent.com/bctechsemi/bct/refs/heads/main/images/bct_logo_transparent.png" alt="BCT (주)비씨테크">
+  <div class="divider"></div>
+  <div>
+    <h1>케이블 하네스 사급품 관리</h1>
+    <div class="sub">HS하이테크 사급 · 모델별 소요량 산정 / 입고 검수 / 부족 통보</div>
+  </div>
+  <div class="sp"></div>
+  <button class="btn ghost" id="bExport">데이터 백업(JSON)</button>
+  <button class="btn ghost" id="bImport">불러오기</button>
+  <input type="file" id="fImport" accept=".json" hidden>
+</header>
+
+<main>
+  <div class="tabs" id="tabs"></div>
+
+  <div class="card">
+    <h2 id="infoTitle">도면 정보 <span class="tag" id="mTag"></span></h2>
+    <div class="docinfo" id="docinfo"></div>
+    <div class="lotbar" style="margin-top:12px">
+      <div class="field"><label>핀·단자·튜브 여유율(%) — 전 모델 공통</label><input id="lossPin" class="num" type="number" min="0" step="1"></div>
+      <div class="field"><label>전선 여유율(%) — 전 모델 공통</label><input id="lossWire" class="num" type="number" min="0" step="1"></div>
+      <div class="field" style="flex:1;min-width:220px"><label>발주번호 / 메모</label><input id="memo"></div>
+    </div>
+    <div class="kpis" id="kpis" style="margin-top:14px"></div>
+  </div>
+
+  <div class="card">
+    <h2 id="tblTitle">사급품 소요량 · 입고 검수</h2>
+    <div class="filters">
+      <label><input type="checkbox" id="fSupplyOnly" checked> 사급 품목만</label>
+      <label class="sumOnly"><input type="checkbox" id="fShortOnly"> 부족 품목만</label>
+      <span class="sp" style="flex:1"></span>
+      <button class="btn sm sumOnly" id="bFillReq">입고수량 = 필요수량 일괄입력</button>
+      <button class="btn sm sumOnly" id="bClearRcv">입고수량 초기화</button>
+      <button class="btn sm sumOnly" id="bCopyShort">부족 내역 복사(메일용)</button>
+      <button class="btn sm" id="bCsv">CSV 저장</button>
+      <button class="btn sm pri" id="bPrintReq">사급 요청서 인쇄</button>
+      <button class="btn sm pri sumOnly" id="bPrintShort">부족 통보서 인쇄</button>
+    </div>
+    <div class="tblwrap">
+      <table id="reqTbl">
+        <thead></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="muted" style="margin:10px 0 0">순소요 = 세트당 수량 × 발주 세트 수 (도면 그대로). 사급 필요 = 순소요 × (1 + 여유율), 올림. 종합 탭은 세 모델의 같은 품번을 합산하며, 입고 검수는 종합 탭에서 합니다. 전선은 m 단위(케이블 길이 합계 기준, 탈피·절단 손실은 여유율로 반영). 넘버링 튜브·링단자·펜홀(페룰)은 기본값을 '자체'로 두었습니다. 조달 구분을 누르면 바꿀 수 있습니다.</p>
+  </div>
+
+  <div class="card" id="cblCard">
+    <details id="cblDetails">
+      <summary>케이블별 구성 (도면 근거) — <span id="cblCount"></span></summary>
+      <div class="cables" id="cables" style="margin-top:12px"></div>
+    </details>
+  </div>
+</main>
+
+<div id="printArea"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================
+   부품 마스터
+   cat: con(커넥터/하우징) pin(핀) acc(글랜드/부자재) wire(전선) term(단자) tube(튜브) unit(완제품)
+   sup: 기본 조달 (true=사급, false=자체)
+   ========================================================= */
+const CATS={con:'커넥터 / 하우징',pin:'핀 (Terminal)',acc:'케이블 글랜드 / 부자재',unit:'완제품 부품',wire:'전선',term:'단자 (링 / 펜홀)',tube:'넘버링 튜브'};
+const CAT_ORDER=['con','pin','acc','unit','wire','term','tube'];
+const P={
+ 'H-09200030320':{cat:'con',pn:'09200030320',name:'Housing (HARTING Han 3A, 브래킷형)',unit:'ea',sup:true},
+ 'C-09120043151':{cat:'con',pn:'09120043151',name:'Connector Han Q4/0 (Female) — Internal용',unit:'ea',sup:true,note:'Housing 체결 스크류 포함'},
+ 'H-09200030420':{cat:'con',pn:'09200030420',name:'Housing (HARTING Han 3A, 후드형)',unit:'ea',sup:true},
+ 'C-09120043051':{cat:'con',pn:'09120043051',name:'Connector Han Q4/0 (Male) — External용',unit:'ea',sup:true},
+ 'C-1-178129-6':{cat:'con',pn:'1-178129-6',name:'Connector TE Dynamic D-3100 6P',unit:'ea',sup:true},
+ 'C-1-2069029-2':{cat:'con',pn:'1-2069029-2',name:'Connector TE 6P (RTD)',unit:'ea',sup:true},
+ 'H-1-1827864-2':{cat:'con',pn:'1-1827864-2',name:'Housing TE D-1200 4P',unit:'ea',sup:true},
+ 'C-1-1903130-2':{cat:'con',pn:'1-1903130-2',name:'Connector TE D-1200 4P',unit:'ea',sup:true},
+ 'C-37104':{cat:'con',pn:'37104-2165-000 FL 100',name:'Connector 3M 4P (IDC, 핀 불필요)',unit:'ea',sup:true},
+ 'C-NW-HA2.5':{cat:'con',pn:'NW-HA2.5',name:'FAN Connector Housing 4P',unit:'ea',sup:true},
+ 'C-XHP-4':{cat:'con',pn:'XHP-4',name:'FAN Connector Housing 4P (JST XH)',unit:'ea',sup:true},
+ 'C-VHR-3N':{cat:'con',pn:'VHR-3N',name:'Connector JST VH 3P',unit:'ea',sup:true},
+ 'C-VHR-6N':{cat:'con',pn:'VHR-6N',name:'Connector JST VH 6P',unit:'ea',sup:true},
+ 'C-776164-1':{cat:'con',pn:'776164-1',name:'Connector TE AMPSEAL 35P',unit:'ea',sup:true},
+
+ 'P-09320006205':{cat:'pin',pn:'09320006205',name:'Crimp Pin Female 14AWG (Han)',unit:'ea',sup:true,note:'09320006105와 혼동 주의'},
+ 'P-09320006105':{cat:'pin',pn:'09320006105',name:'Crimp Pin Male 14AWG (Han)',unit:'ea',sup:true},
+ 'P-175195-2':{cat:'pin',pn:'175195-2',name:'Pin TE D-3100 (20~22AWG)',unit:'ea',sup:true},
+ 'P-1871731-1':{cat:'pin',pn:'1871731-1',name:'Pin TE 22AWG (RTD 커넥터용)',unit:'ea',sup:true},
+ 'P-1871303-1':{cat:'pin',pn:'1871303-1',name:'Pin TE 22AWG (중계 측 단말)',unit:'ea',sup:true},
+ 'P-1903124-1':{cat:'pin',pn:'1903124-1',name:'Pin TE D-1200 22AWG',unit:'ea',sup:true},
+ 'P-NW-XH2.5':{cat:'pin',pn:'NW-XH2.5',name:'FAN Connector Pin (XH 2.5)',unit:'ea',sup:true},
+ 'P-SVH-21T':{cat:'pin',pn:'SVH-21T-P1.1',name:'Pin JST VH 18~22AWG',unit:'ea',sup:true},
+ 'P-770520-1':{cat:'pin',pn:'770520-1',name:'Pin TE AMPSEAL 20~16AWG',unit:'ea',sup:true},
+
+ 'G-09000005164':{cat:'acc',pn:'09000005164',name:'Cable Gland (HARTING M20)',unit:'ea',sup:true},
+ 'G-JOPG-9':{cat:'acc',pn:'JOPG-9',name:'Cable Gland 정오사 PG9 (Lock nut 분리 포장)',unit:'ea',sup:true},
+
+ 'U-FAN':{cat:'unit',pn:'DC FAN',name:'DC FAN (리드선 포함)',unit:'ea',sup:true},
+ 'U-363010':{cat:'unit',pn:'363010-D01',name:'전원 코드 (Plug) 2,500mm',unit:'ea',sup:true},
+
+ 'W-1015-BLK-14':{cat:'wire',pn:'UL1015 BLK #14',name:'UL1015 AWG14 Black',unit:'m',sup:true},
+ 'W-1015-GY-14':{cat:'wire',pn:'UL1015 G/Y #14',name:'UL1015 AWG14 Green/Yellow',unit:'m',sup:true},
+ 'W-1726-BLU-20':{cat:'wire',pn:'UL1726 BLU #20',name:'UL1726 AWG20 Blue',unit:'m',sup:true},
+ 'W-1726-WHT-22':{cat:'wire',pn:'UL1726 WHT #22',name:'UL1726 AWG22 White',unit:'m',sup:true},
+ 'W-1726-YEL-22':{cat:'wire',pn:'UL1726 YEL #22',name:'UL1726 AWG22 Yellow',unit:'m',sup:true},
+ 'W-1726-GRN-22':{cat:'wire',pn:'UL1726 GRN #22',name:'UL1726 AWG22 Green',unit:'m',sup:true},
+ 'W-1726-BLU-22':{cat:'wire',pn:'UL1726 BLU #22',name:'UL1726 AWG22 Blue',unit:'m',sup:true},
+ 'W-1007-BLU-20':{cat:'wire',pn:'UL1007 BLU #20',name:'UL1007 AWG20 Blue',unit:'m',sup:true},
+ 'W-PFA-YEL-22':{cat:'wire',pn:'UL1726 YEL #22 PFA',name:'VW-1 UL1726 AWG22 Yellow (PFA)',unit:'m',sup:true},
+ 'W-PFA-WHT-22':{cat:'wire',pn:'UL1726 WHT #22 PFA',name:'VW-1 UL1726 AWG22 White (PFA)',unit:'m',sup:true},
+ 'W-PFA-BLU-24':{cat:'wire',pn:'UL1007 BLU #24 PFA',name:'VW-1 UL1007 AWG24 Blue (PFA 표기)',unit:'m',sup:true},
+ 'W-PFA-GRN-26':{cat:'wire',pn:'UL1332/1726 GRN #26',name:'VW-1 UL1332 or 1726 AWG26 Green (PFA)',unit:'m',sup:true},
+ 'W-PFA-BLU-26':{cat:'wire',pn:'UL1332/1726 BLU #26',name:'VW-1 UL1332 or 1726 AWG26 Blue (PFA)',unit:'m',sup:true},
+
+ 'T-JOR-2.5-6':{cat:'term',pn:'JOR-2.5-6',name:'링 단자 (O형) 2.5sq M6',unit:'ea',sup:false},
+ 'T-JOR-1.5-6':{cat:'term',pn:'JOR-1.5-6',name:'링 단자 (O형) 1.5sq M6',unit:'ea',sup:false},
+ 'T-RING-NS':{cat:'term',pn:'O형 단자 (규격 미표기)',name:'링 단자 — 도면에 품번 없음',unit:'ea',sup:false,note:'도면 규격 확인 필요'},
+ 'T-FER-14':{cat:'term',pn:'펜홀 14AWG',name:'펜홀(페룰) 단자 2.0~2.5sq',unit:'ea',sup:false},
+ 'T-FER-20':{cat:'term',pn:'펜홀 20AWG',name:'펜홀(페룰) 단자 0.5sq',unit:'ea',sup:false},
+ 'TB-NUM':{cat:'tube',pn:'넘버링 수축튜브 Ø2~2.5',name:'White / Black text H2.5',unit:'ea',sup:false},
+};
+
+/* =========================================================
+   모델 / 케이블 BOM (도면 판독값, 1세트 기준)
+   ========================================================= */
+const M_DIRECT_LED=n=>[['C-1-178129-6',1],['P-175195-2',6],['W-1726-WHT-22',4.1*3],['W-1726-YEL-22',4.1*3],['TB-NUM',12]];
+const M_DIRECT_RTD=n=>[['C-1-2069029-2',1],['P-1871731-1',6],['W-1726-GRN-22',4.1*3],['W-1726-BLU-22',4.1*3],['TB-NUM',12]];
+const DIO=()=>[['C-37104',1],['W-1726-BLU-20',4.1*4],['TB-NUM',8]];
+const R_LED=()=>[['C-1-178129-6',1],['P-175195-2',6],['P-1871303-1',6],['W-1726-WHT-22',4.1*3],['W-1726-YEL-22',4.1*3],['TB-NUM',12]];
+const R_RTD=()=>[['C-1-2069029-2',1],['P-1871731-1',6],['P-1871303-1',6],['W-1726-GRN-22',4.1*3],['W-1726-BLU-22',4.1*3],['TB-NUM',12]];
+const R_BR=()=>[['H-1-1827864-2',1],['C-1-1903130-2',1],['P-1903124-1',4],['W-1726-YEL-22',2],['W-1726-WHT-22',2],['W-1726-GRN-22',2],['W-1726-BLU-22',2],['TB-NUM',8]];
+const B_HTR=()=>[['C-776164-1',1],['P-770520-1',35],['W-PFA-YEL-22',5*6],['W-PFA-WHT-22',5*6],['W-PFA-BLU-24',5*11],['W-PFA-GRN-26',5*6],['W-PFA-BLU-26',5*6],['TB-NUM',70]];
+
+const MODELS=[
+ {id:'direct',name:'L3 PRIME DIRECT',short:'다이렉트 케이블 하네스',dwg:'26-LH01-07-000-02',file:'26-LH01-07-000-02_다이렉트 케이블 하네스_261021_다이렉트 케이블_rev.03.pdf',pages:'9~23p',rev:'rev.03 (2026-10-21)',
+  cables:[
+   {pn:'26-LH01-07-001-02',name:'PWR1 Internal Cable',pg:9,bom:[['H-09200030320',1],['C-09120043151',1],['P-09320006205',4],['W-1015-BLK-14',0.1*4],['T-FER-14',4],['TB-NUM',8]]},
+   {pn:'26-LH01-07-002-03',name:'PWR1 External Cable',pg:10,bom:[['H-09200030420',1],['C-09120043051',1],['G-09000005164',1],['P-09320006105',4],['W-1015-BLK-14',4.1*4],['T-JOR-2.5-6',4],['TB-NUM',8]],memo:'Rev.3: O형 단자 JOR-2.5-6로 변경'},
+   {pn:'26-LH01-07-003-03',name:'PWR2 External Cable',pg:11,bom:[['C-1-178129-6',1],['P-175195-2',6],['W-1726-BLU-20',4.1*6],['T-FER-20',6],['TB-NUM',12]],memo:'Rev.3: O형 단자 → 펜홀 작업'},
+   {pn:'26-LH01-07-004-02',name:'LED Heater-1 LED1 Cable',pg:12,bom:M_DIRECT_LED()},
+   {pn:'26-LH01-07-005-02',name:'LED Heater-1 RTD1 Cable',pg:13,bom:M_DIRECT_RTD()},
+   {pn:'26-LH01-07-006-02',name:'LED Heater-1 LED2 Cable',pg:14,bom:M_DIRECT_LED()},
+   {pn:'26-LH01-07-007-02',name:'LED Heater-1 RTD2 Cable',pg:15,bom:M_DIRECT_RTD()},
+   {pn:'26-LH01-07-008-02',name:'LED Heater-2 LED1 Cable',pg:16,bom:M_DIRECT_LED()},
+   {pn:'26-LH01-07-009-02',name:'LED Heater-2 RTD1 Cable',pg:17,bom:M_DIRECT_RTD()},
+   {pn:'26-LH01-07-010-02',name:'LED Heater-2 LED2 Cable',pg:18,bom:M_DIRECT_LED()},
+   {pn:'26-LH01-07-011-02',name:'LED Heater-2 RTD2 Cable',pg:19,bom:M_DIRECT_RTD()},
+   {pn:'26-LH01-07-012-02',name:'D.I.O-1 Cable',pg:20,bom:DIO()},
+   {pn:'26-LH01-07-013-02',name:'D.I.O-2 Cable',pg:21,bom:DIO()},
+   {pn:'26-LH01-07-014-02',name:'D.I.O-3 Cable',pg:22,bom:DIO()},
+   {pn:'26-LH01-07-015-03',name:'DC Fan Cable (FAN1~4)',pg:23,bom:[['U-FAN',4],['C-NW-HA2.5',4],['P-NW-XH2.5',16],['TB-NUM',4]],memo:'Rev.3: FAN 커넥터 NW-HA2.5 + NW-XH2.5로 변경 (FAN 리드선 110mm 사용)'},
+  ]},
+ {id:'relay',name:'L3 PRIME ROUTER',short:'중계커넥터 케이블 하네스',dwg:'26-LH01-08-000-02',file:'26-LH01-08-000-02_중계커넥터 하네스_260911.pdf',pages:'9~35p',rev:'rev.02 (2026-09-10)',
+  cables:(()=>{const c=[
+   {pn:'26-LH01-08-001-02',name:'PWR1 Internal Cable',pg:9,bom:[['H-09200030320',1],['C-09120043151',1],['P-09320006205',4],['W-1015-BLK-14',0.1*4],['T-FER-14',4],['TB-NUM',8]]},
+   {pn:'26-LH01-08-002-02',name:'PWR1 External Cable',pg:10,bom:[['H-09200030420',1],['C-09120043051',1],['G-09000005164',1],['P-09320006105',4],['W-1015-BLK-14',4.1*4],['T-JOR-1.5-6',4],['TB-NUM',8]]},
+   {pn:'26-LH01-08-003-02',name:'PWR2 External Cable',pg:11,bom:[['C-1-178129-6',1],['P-175195-2',6],['W-1726-BLU-20',4.1*6],['T-JOR-1.5-6',6],['TB-NUM',12]]}];
+   let pg=12,no=4;
+   [['LED Heater-1',['LED1','RTD1','LED2','RTD2']],['LED Heater-2',['LED1','RTD1','LED2','RTD2']]].forEach(([h])=>{
+     ['1','2'].forEach(k=>{
+       c.push({pn:`26-LH01-08-${String(no++).padStart(3,'0')}-02`,name:`${h} LED${k} Cable`,pg:pg++,bom:R_LED()});
+       c.push({pn:`26-LH01-08-${String(no++).padStart(3,'0')}-02`,name:`${h} RTD${k} Cable`,pg:pg++,bom:R_RTD()});
+       for(let r=1;r<=3;r++) c.push({pn:`26-LH01-08-${String(no++).padStart(3,'0')}-02`,name:`${h} LED${k} Cable (Relay-${r})`,pg:pg++,bom:R_BR()});
+     });
+   });
+   for(let d=1;d<=3;d++) c.push({pn:`26-LH01-08-${String(no++).padStart(3,'0')}-02`,name:`D.I.O-${d} Cable`,pg:pg++,bom:DIO()});
+   c.push({pn:'26-LH01-08-027-02',name:'DC Fan Cable (FAN1~4)',pg:35,bom:[['U-FAN',4],['C-XHP-4',4],['P-NW-XH2.5',16],['TB-NUM',4]]});
+   return c;})()},
+ {id:'beta',name:'L3 BETA-L',short:'BETA-L 케이블 하네스',dwg:'26-LH03-07-000',file:'2026-09-23_L3 BETA-L WIRING DIAGRAM_rev02.pdf',pages:'8~19p',rev:'rev02 (2026-09-23)',
+  cables:[
+   {pn:'26-LH03-07-001-00',name:'PWR1 Internal Cable',pg:8,bom:[['H-09200030320',1],['C-09120043151',1],['P-09320006205',4],['W-1015-BLK-14',0.4*3],['W-1015-GY-14',0.2],['T-JOR-1.5-6',4],['TB-NUM',8]],memo:'JOR-1.5-6 링단자 도급(견적 비고)'},
+   {pn:'26-LH03-07-002-00',name:'3-Phase Bridge Cable',pg:9,bom:[['W-1015-BLK-14',0.25*4],['T-FER-14',4],['T-JOR-1.5-6',4],['TB-NUM',8]],memo:'JOR-1.5-6 링단자 도급(견적 비고)'},
+   {pn:'26-LH03-07-003-00',name:'PWR2 Internal Cable',pg:10,bom:[['U-363010',1],['G-JOPG-9',1],['C-VHR-3N',1],['P-SVH-21T',2],['T-RING-NS',1],['TB-NUM',6]],memo:'전원코드 심선(70mm) 사용 · Lock Nut는 분해 후 별도 포장 납품'},
+   {pn:'26-LH03-07-004-00',name:'SMPS Connector Cable',pg:11,bom:[['C-VHR-6N',1],['P-SVH-21T',2],['W-1007-BLU-20',0.12*2],['T-FER-20',2],['TB-NUM',4]],memo:'VHR-6N 핀 품번 도면 미표기 → VH 계열 SVH-21T-P1.1 적용 가정'},
+   {pn:'26-LH03-07-005-00',name:'PWR1 External Cable',pg:12,bom:[['H-09200030420',1],['C-09120043051',1],['P-09320006105',4],['W-1015-BLK-14',5*3],['W-1015-GY-14',5],['T-RING-NS',4],['TB-NUM',8]],memo:'케이블 글랜드 도면 미표기 · O형 단자 규격 미표기'},
+   {pn:'26-LH03-07-006-00',name:'LED Heater-1 Cable (3 sheets)',pg:'13~15',bom:B_HTR(),memo:'LED CH1~6 12선 + 신호 11선 + RTD CH1~6 12선 = 35핀'},
+   {pn:'26-LH03-07-007-00',name:'LED Heater-2 Cable (3 sheets)',pg:'16~18',bom:B_HTR(),memo:'구성 동일 (LED CH7~12 / 신호 11선 / RTD CH7~12)'},
+   {pn:'26-LH03-07-008-00',name:'DC FAN Cable (FAN1~4)',pg:19,bom:[['U-FAN',4],['C-XHP-4',4],['P-NW-XH2.5',16],['TB-NUM',4]],memo:'FAN 리드선 50mm 사용'},
+  ]},
+];
+
+/* =========================================================
+   상태 (localStorage)
+   view: 'summary' | 모델 id
+   sets: 모델별 발주 세트 수 / rcv: 종합 입고수량 / sup: 조달 구분(전 모델 공통)
+   ========================================================= */
+const KEY='hs_harness_supply_v2';
+let S=load();
+function defState(){const s={view:'summary',lossPin:5,lossWire:5,memo:'',sets:{},rcv:{},sup:{}};MODELS.forEach(m=>s.sets[m.id]=0);return s;}
+function fix(s){const d=defState();for(const k in d) if(s[k]===undefined) s[k]=d[k];MODELS.forEach(m=>{if(s.sets[m.id]===undefined) s.sets[m.id]=0;});return s;}
+function load(){
+  try{const raw=localStorage.getItem(KEY); if(raw) return fix(JSON.parse(raw));}catch(e){}
+  /* v1(LOT 방식) 데이터가 있으면 조달 구분·여유율만 이어받음 */
+  const s=defState();
+  try{const o=JSON.parse(localStorage.getItem('hs_harness_supply_v1')||'null'); if(o&&o.models){MODELS.forEach(m=>{const om=o.models[m.id]; if(om){Object.assign(s.sup,om.sup||{}); const L=om.lots&&om.lots[om.cur||0]; if(L){s.lossPin=L.lossPin;s.lossWire=L.lossWire;}}});}}catch(e){}
+  return s;
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){toast('브라우저 저장 실패 — JSON 백업을 이용하세요');}}
+
+const $=id=>document.getElementById(id);
+const fmt=(v,u)=>u==='m'?(Math.round(v*100)/100).toLocaleString('ko-KR',{maximumFractionDigits:2}):(Math.round(v*100)/100).toLocaleString('ko-KR');
+function toast(t){const e=$('toast');e.textContent=t;e.classList.add('show');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),1800);}
+function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+const isSum=()=>S.view==='summary';
+const model=()=>MODELS.find(m=>m.id===S.view);
+const isSup=pid=>S.sup[pid]===undefined?P[pid].sup:S.sup[pid];
+const sortP=(a,b)=>CAT_ORDER.indexOf(P[a].cat)-CAT_ORDER.indexOf(P[b].cat)||P[a].pn.localeCompare(P[b].pn);
+
+/* 여유율 적용 사급 필요수량 */
+function withLoss(pid,net){
+  const p=P[pid];
+  const loss=p.unit==='m'?+S.lossWire||0:((p.cat==='pin'||p.cat==='term'||p.cat==='tube')?+S.lossPin||0:0);
+  return Math.ceil(net*(1+loss/100)-1e-9);
+}
+/* 모델 1세트 집계 */
+function perSet(m){
+  const map={};
+  m.cables.forEach(c=>c.bom.forEach(([pid,q])=>{(map[pid]=map[pid]||{pid,per:0,cables:[]});map[pid].per+=q;if(!map[pid].cables.includes(c.pn))map[pid].cables.push(c.pn);}));
+  return map;
+}
+/* 모델 화면 행 */
+function modelRows(m){
+  const sets=+S.sets[m.id]||0;
+  return Object.values(perSet(m)).sort((a,b)=>sortP(a.pid,b.pid)).map(r=>{const net=r.per*sets;return{...r,net,req:withLoss(r.pid,net),sup:isSup(r.pid)};});
+}
+/* 종합 화면 행 */
+function sumRows(){
+  const map={};
+  MODELS.forEach(m=>{const sets=+S.sets[m.id]||0;Object.values(perSet(m)).forEach(r=>{(map[r.pid]=map[r.pid]||{pid:r.pid,by:{},net:0});map[r.pid].by[m.id]=r.per*sets;map[r.pid].net+=r.per*sets;});});
+  return Object.values(map).sort((a,b)=>sortP(a.pid,b.pid)).map(r=>{
+    const req=withLoss(r.pid,r.net), raw=S.rcv[r.pid], has=raw!==undefined&&raw!=='';
+    const rcv=has?+raw:null, diff=has?rcv-req:null;
+    let st='none'; if(r.net===0) st='na'; else if(has) st=diff<0?'bad':(diff>0?'over':'ok');
+    return{...r,req,rcv,has,diff,st,sup:isSup(r.pid)};
+  });
+}
+
+/* =========================================================
+   렌더
+   ========================================================= */
+const totalSets=()=>MODELS.reduce((a,m)=>a+(+S.sets[m.id]||0),0);
+function renderTabs(){
+  $('tabs').innerHTML=`<div class="tab sum ${isSum()?'on':''}" data-m="summary"><b>종합</b><span class="tot">${MODELS.map(m=>`${m.name.replace('L3 ','').replace('PRIME ','')} ${S.sets[m.id]||0}`).join(' · ')}</span></div>`+
+   MODELS.map(m=>`<div class="tab ${m.id===S.view?'on':''}" data-m="${m.id}"><div><b>${m.name}</b><span>${m.dwg} · 케이블 ${m.cables.length}종</span></div>
+     <label class="setq">발주 세트 <input type="number" min="0" step="1" data-sets="${m.id}" value="${S.sets[m.id]||0}"> 세트</label></div>`).join('');
+  $('tabs').querySelectorAll('.tab').forEach(t=>t.onclick=e=>{if(e.target.tagName==='INPUT')return; if(S.view===t.dataset.m)return; S.view=t.dataset.m;save();renderAll();});
+  $('tabs').querySelectorAll('input[data-sets]').forEach(i=>{
+    i.onclick=e=>e.stopPropagation();
+    i.oninput=()=>{S.sets[i.dataset.sets]=Math.max(0,Math.floor(+i.value||0));save();renderTabsSummary();if(isSum())renderDoc();renderKpis();renderTable();};
+    i.onchange=()=>{i.value=S.sets[i.dataset.sets];};
+  });
+}
+function renderTabsSummary(){const t=$('tabs').querySelector('.tab.sum .tot'); if(t) t.textContent=MODELS.map(m=>`${m.name.replace('L3 ','').replace('PRIME ','')} ${S.sets[m.id]||0}`).join(' · ');}
+function renderDoc(){
+  $('lossPin').value=S.lossPin; $('lossWire').value=S.lossWire; $('memo').value=S.memo||'';
+  if(isSum()){
+    $('infoTitle').innerHTML='종합 — 모델 합산 사급 필요수량 <span class="tag">전 모델</span>';
+    $('docinfo').innerHTML=MODELS.map(m=>`<div><b>${m.name}</b> <code>${m.dwg} ${m.rev}</code> × <b>${S.sets[m.id]||0}</b>세트</div>`).join('');
+  }else{
+    const m=model();
+    $('infoTitle').innerHTML=`도면 정보 <span class="tag">${m.short}</span>`;
+    $('docinfo').innerHTML=`<div>도번 <code>${m.dwg}</code></div><div>개정 <code>${m.rev}</code></div><div>근거 페이지 <code>${m.pages}</code></div><div>파일 <code>${m.file}</code></div>`;
+  }
+}
+function wireTotal(R){return R.filter(r=>P[r.pid].unit==='m'&&r.sup).reduce((a,r)=>a+r.req,0);}
+function renderKpis(){
+  if(isSum()){
+    const R=sumRows().filter(r=>r.sup&&r.st!=='na');
+    const c=k=>R.filter(r=>r.st===k).length;
+    $('kpis').innerHTML=`
+     <div class="kpi"><div class="l">총 발주 세트</div><div class="v">${totalSets()}</div></div>
+     <div class="kpi"><div class="l">사급 품목 수</div><div class="v">${R.length}</div></div>
+     <div class="kpi"><div class="l">전선 사급 필요 합계</div><div class="v">${fmt(wireTotal(R),'m')} m</div></div>
+     <div class="kpi ok"><div class="l">충족</div><div class="v">${c('ok')+c('over')}</div></div>
+     <div class="kpi bad"><div class="l">부족</div><div class="v">${c('bad')}</div></div>
+     <div class="kpi warn"><div class="l">입고 미입력</div><div class="v">${c('none')}</div></div>`;
+  }else{
+    const m=model(),R=modelRows(m).filter(r=>r.sup);
+    $('kpis').innerHTML=`
+     <div class="kpi"><div class="l">발주 세트</div><div class="v">${S.sets[m.id]||0}</div></div>
+     <div class="kpi"><div class="l">케이블 종류 / 세트</div><div class="v">${m.cables.length}</div></div>
+     <div class="kpi"><div class="l">사급 품목 수</div><div class="v">${R.length}</div></div>
+     <div class="kpi"><div class="l">전선 사급 필요 합계</div><div class="v">${fmt(wireTotal(R),'m')} m</div></div>`;
+  }
+}
+const STL={ok:'충족',bad:'부족',over:'초과',none:'미입력',na:'해당없음'};
+const supSw=r=>`<span class="sw" data-p="${r.pid}"><button class="${r.sup?'on':''}" data-v="1">사급</button><button class="${r.sup?'':'on self'}" data-v="0">자체</button></span>`;
+const nameCell=p=>`${esc(p.name)}${p.note?`<div class="note">${esc(p.note)}</div>`:''}`;
+const shortName=m=>m.name.replace('L3 PRIME ','').replace('L3 ','');
+function renderTable(){
+  const supOnly=$('fSupplyOnly').checked, shortOnly=$('fShortOnly').checked;
+  const sum=isSum();
+  document.querySelectorAll('.sumOnly').forEach(e=>e.style.display=sum?'':'none');
+  $('cblCard').style.display=sum?'none':'';
+  $('tblTitle').textContent=sum?'종합 사급 필요수량 · 입고 검수':`${model().name} 사급 필요수량`;
+  let R,cols,html='',cat='';
+  if(sum){
+    R=sumRows(); if(supOnly) R=R.filter(r=>r.sup); if(shortOnly) R=R.filter(r=>r.st==='bad');
+    cols=7+MODELS.length+3;
+    $('reqTbl').querySelector('thead').innerHTML=`<tr><th>구분</th><th>품번</th><th>품명 / 규격</th>${MODELS.map(m=>`<th class="n">${shortName(m)}<br><span style="font-weight:400">${S.sets[m.id]||0}세트</span></th>`).join('')}<th class="n">순소요 합계</th><th class="n">사급 필요<br><span style="font-weight:400">여유 포함</span></th><th class="n">입고수량</th><th class="n">과부족</th><th>판정</th><th>조달</th></tr>`;
+    R.forEach(r=>{
+      const p=P[r.pid];
+      if(p.cat!==cat){cat=p.cat;html+=`<tr class="cat"><td colspan="${cols}">${CATS[cat]}</td></tr>`;}
+      const dTxt=r.has&&r.st!=='na'?(r.diff>0?'+':'')+fmt(r.diff,p.unit):'';
+      html+=`<tr class="${r.sup?'':'self'}"><td>${CATS[p.cat].split(' ')[0]}</td><td class="pn">${esc(p.pn)}</td><td>${nameCell(p)}</td>
+        ${MODELS.map(m=>{const v=r.by[m.id];return v===undefined?'<td class="mdl zero">–</td>':`<td class="mdl ${v?'':'zero'}">${fmt(v,p.unit)}</td>`}).join('')}
+        <td class="n">${fmt(r.net,p.unit)} ${p.unit}</td>
+        <td class="n"><b>${fmt(r.req,p.unit)}</b> ${p.unit}</td>
+        <td class="n"><input class="rcv" data-p="${r.pid}" type="number" min="0" step="${p.unit==='m'?'0.1':'1'}" value="${r.has?r.rcv:''}" placeholder="-"></td>
+        <td class="n diff ${r.st==='bad'?'bad':(r.has?'ok':'')}">${dTxt}</td>
+        <td><span class="st ${r.st==='na'?'none':r.st}">${STL[r.st]}</span></td><td>${supSw(r)}</td></tr>`;
+    });
+  }else{
+    const m=model(); R=modelRows(m); if(supOnly) R=R.filter(r=>r.sup);
+    cols=8; const sets=S.sets[m.id]||0;
+    $('reqTbl').querySelector('thead').innerHTML=`<tr><th>구분</th><th>품번</th><th>품명 / 규격</th><th class="n">세트당</th><th class="n">순소요<br><span style="font-weight:400">×${sets}세트</span></th><th class="n">사급 필요<br><span style="font-weight:400">여유 포함</span></th><th>조달</th><th>사용 케이블</th></tr>`;
+    R.forEach(r=>{
+      const p=P[r.pid];
+      if(p.cat!==cat){cat=p.cat;html+=`<tr class="cat"><td colspan="${cols}">${CATS[cat]}</td></tr>`;}
+      html+=`<tr class="${r.sup?'':'self'}"><td>${CATS[p.cat].split(' ')[0]}</td><td class="pn">${esc(p.pn)}</td><td>${nameCell(p)}</td>
+        <td class="n">${fmt(r.per,p.unit)} ${p.unit}</td><td class="n">${fmt(r.net,p.unit)} ${p.unit}</td><td class="n"><b>${fmt(r.req,p.unit)}</b> ${p.unit}</td>
+        <td>${supSw(r)}</td><td><div class="chips">${r.cables.map(c=>`<span class="chip" title="${esc(cblName(m,c))}">${c.slice(-6)}</span>`).join('')}</div></td></tr>`;
+    });
+  }
+  if(!R.length) html=`<tr><td colspan="${cols}" class="muted" style="text-align:center;padding:24px">해당 품목이 없습니다.</td></tr>`;
+  $('reqTbl').querySelector('tbody').innerHTML=html;
+  $('reqTbl').querySelectorAll('input.rcv').forEach(i=>i.onchange=()=>{if(i.value==='') delete S.rcv[i.dataset.p]; else S.rcv[i.dataset.p]=+i.value; save(); renderTable(); renderKpis();});
+  $('reqTbl').querySelectorAll('.sw button').forEach(b=>b.onclick=()=>{S.sup[b.parentNode.dataset.p]=b.dataset.v==='1'; save(); renderTable(); renderKpis();});
+}
+function cblName(m,pn){const c=m.cables.find(c=>c.pn===pn);return c?`${pn} ${c.name}`:pn}
+function renderCables(){
+  if(isSum()) return;
+  const m=model();
+  $('cblCount').textContent=`${m.cables.length}종`;
+  $('cables').innerHTML=m.cables.map(c=>`<div class="cbl">
+    <div class="cpn">${c.pn}</div><h3>${esc(c.name)}</h3>
+    <div class="meta">도면 ${c.pg}p${c.memo?` · ${esc(c.memo)}`:''}</div>
+    <table>${c.bom.map(([pid,q])=>{const p=P[pid];return `<tr><td class="pn" style="font-size:11.5px">${esc(p.pn)}</td><td class="muted">${CATS[p.cat].split(' ')[0]}</td><td class="n">${fmt(q,p.unit)} ${p.unit}</td></tr>`}).join('')}</table>
+  </div>`).join('');
+}
+function renderAll(){renderTabs();renderDoc();renderKpis();renderTable();renderCables();}
+
+/* =========================================================
+   이벤트
+   ========================================================= */
+['lossPin','lossWire'].forEach(id=>$(id).onchange=()=>{S[id]=Math.max(0,+$(id).value||0);save();renderKpis();renderTable();});
+$('memo').onchange=()=>{S.memo=$('memo').value;save();};
+['fSupplyOnly','fShortOnly'].forEach(id=>$(id).onchange=renderTable);
+$('bFillReq').onclick=()=>{sumRows().filter(r=>r.sup&&r.net>0).forEach(r=>S.rcv[r.pid]=r.req); save(); renderTable(); renderKpis(); toast('필요수량으로 채움 — 실제 입고와 다른 품목만 수정하세요');};
+$('bClearRcv').onclick=()=>{if(!confirm('입고수량을 모두 지울까요?'))return; S.rcv={}; save(); renderTable(); renderKpis();};
+
+/* =========================================================
+   내보내기 / 인쇄
+   ========================================================= */
+const setsLine=()=>MODELS.map(m=>`${m.name} ${S.sets[m.id]||0}세트`).join(' / ');
+const shortList=()=>sumRows().filter(r=>r.sup&&r.st==='bad');
+$('bCopyShort').onclick=()=>{
+  const L=shortList();
+  if(!L.length){toast('부족 품목이 없습니다');return;}
+  const t=['[L3 케이블 하네스] 사급품 부족 내역',`발주: ${setsLine()}`,S.memo?`메모: ${S.memo}`:'','',
+    ...L.map((r,i)=>{const p=P[r.pid];return `${i+1}. ${p.pn} (${p.name}) — 필요 ${fmt(r.req,p.unit)}${p.unit} / 입고 ${fmt(r.rcv,p.unit)}${p.unit} / 부족 ${fmt(-r.diff,p.unit)}${p.unit}`}),
+    '','추가 사급 부탁드립니다.'].filter((x,i)=>x!==''||i>2).join('\n');
+  navigator.clipboard.writeText(t).then(()=>toast('부족 내역을 복사했습니다'),()=>{prompt('복사하세요',t)});
+};
+$('bCsv').onclick=()=>{
+  let lines,name;
+  if(isSum()){
+    lines=[['구분','품번','품명','단위',...MODELS.map(m=>`${m.name}(${S.sets[m.id]||0}세트)`),'순소요 합계','사급 필요(여유 포함)','입고수량','과부족','판정','조달'],
+      ...sumRows().map(r=>{const p=P[r.pid];return[CATS[p.cat],p.pn,p.name,p.unit,...MODELS.map(m=>r.by[m.id]===undefined?'':+r.by[m.id].toFixed(2)),+r.net.toFixed(2),r.req,r.has?r.rcv:'',r.has?r.diff:'',STL[r.st],r.sup?'사급':'자체']})];
+    name='사급품_종합';
+  }else{
+    const m=model();
+    lines=[['구분','품번','품명','단위','세트당','세트수','순소요','사급 필요(여유 포함)','조달','사용케이블'],
+      ...modelRows(m).map(r=>{const p=P[r.pid];return[CATS[p.cat],p.pn,p.name,p.unit,+r.per.toFixed(2),S.sets[m.id]||0,+r.net.toFixed(2),r.req,r.sup?'사급':'자체',r.cables.join(' ')]})];
+    name='사급품_'+m.name.replace(/\s/g,'_');
+  }
+  const csv='﻿'+lines.map(l=>l.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\r\n');
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download=`${name}_${new Date().toISOString().slice(0,10)}.csv`; a.click();
+};
+function printDoc(kind){
+  const today=new Date().toISOString().slice(0,10), sum=isSum();
+  let R, title=kind==='short'?'사급품 부족 통보서':'사급품 요청서', scope, colsH, rowF;
+  if(sum){
+    R=sumRows().filter(r=>r.sup&&r.net>0); if(kind==='short') R=R.filter(r=>r.st==='bad');
+    scope=setsLine();
+    colsH=`${MODELS.map(m=>`<th class="n">${shortName(m)}<br>${S.sets[m.id]||0}세트</th>`).join('')}<th class="n">사급 필요</th>${kind==='short'?'<th class="n">입고</th><th class="n">부족</th>':'<th class="n">입고 확인</th>'}`;
+    rowF=(r,p)=>`${MODELS.map(m=>`<td class="n">${r.by[m.id]?fmt(r.by[m.id],p.unit):'–'}</td>`).join('')}<td class="n"><b>${fmt(r.req,p.unit)} ${p.unit}</b></td>${kind==='short'?`<td class="n">${fmt(r.rcv,p.unit)}</td><td class="n" style="color:#C62E2E;font-weight:700">${fmt(-r.diff,p.unit)} ${p.unit}</td>`:'<td></td>'}`;
+  }else{
+    const m=model(); R=modelRows(m).filter(r=>r.sup&&r.net>0);
+    scope=`${m.name} (${m.dwg} ${m.rev}) ${S.sets[m.id]||0}세트`;
+    colsH='<th class="n">세트당</th><th class="n">사급 필요</th><th class="n">입고 확인</th>';
+    rowF=(r,p)=>`<td class="n">${fmt(r.per,p.unit)} ${p.unit}</td><td class="n"><b>${fmt(r.req,p.unit)} ${p.unit}</b></td><td></td>`;
+  }
+  if(!R.length){toast(kind==='short'?'부족 품목이 없습니다':'세트 수량을 입력하세요');return;}
+  $('printArea').innerHTML=`
+   <div style="display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #1F4E9C;padding-bottom:6px;margin-bottom:10px">
+     <div style="display:flex;align-items:center;gap:12px"><img src="https://raw.githubusercontent.com/bctechsemi/bct/refs/heads/main/images/bct_logo_transparent.png" alt="BCT" style="height:40px"><div><h1>${title}</h1><div>수신: (주)HS하이테크 · 발신: (주)비씨테크</div></div></div><div style="text-align:right">작성일 ${today}</div></div>
+   <table style="margin-bottom:10px"><tr><th style="width:110px">발주 내역</th><td>${esc(scope)}</td></tr>
+   <tr><th>여유율</th><td>핀·단자·튜브 ${S.lossPin}% / 전선 ${S.lossWire}%</td></tr>${S.memo?`<tr><th>발주번호 / 메모</th><td>${esc(S.memo)}</td></tr>`:''}</table>
+   <table><thead><tr><th>No</th><th>품번</th><th>품명</th>${colsH}</tr></thead>
+   <tbody>${R.map((r,i)=>{const p=P[r.pid];return `<tr><td>${i+1}</td><td class="pn">${esc(p.pn)}</td><td>${esc(p.name)}</td>${rowF(r,p)}</tr>`}).join('')}</tbody></table>
+   <p style="margin-top:14px;font-size:10.5px;color:#555">※ 사급 필요 = 도면 판독 세트당 수량 × 발주 세트 수 × (1+여유율), 올림. 전선 단위 m.</p>
+   <table style="width:auto;margin-top:18px;margin-left:auto"><tr><th style="width:90px">작성</th><th style="width:90px">검토</th><th style="width:110px">확인(HS하이테크)</th></tr><tr><td style="height:50px"></td><td></td><td></td></tr></table>`;
+  window.print();
+}
+$('bPrintReq').onclick=()=>printDoc('req');
+$('bPrintShort').onclick=()=>printDoc('short');
+$('bExport').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,1)],{type:'application/json'}));a.download=`사급품관리_백업_${new Date().toISOString().slice(0,10)}.json`;a.click();};
+$('bImport').onclick=()=>$('fImport').click();
+$('fImport').onchange=e=>{const f=e.target.files[0]; if(!f)return; f.text().then(t=>{try{const s=JSON.parse(t); if(!s.sets) throw 0; S=fix(s); save(); renderAll(); toast('불러오기 완료');}catch(_){toast('올바른 백업 파일이 아닙니다');}}); e.target.value='';};
+
+renderAll();
+</script>
+</body>
+</html>
