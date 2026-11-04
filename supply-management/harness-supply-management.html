@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>케이블 하네스 사급품 관리</title>
+<title>Cable Harness Supply Management</title>
 <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/bctechsemi/bct/refs/heads/main/images/bct_favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -106,10 +106,19 @@ details summary{cursor:pointer;font-weight:600;color:var(--blue-d)}
 @media print{
   body{background:#fff}
   header,main{display:none!important}
-  #printArea{display:block!important;font-size:11.5px}
+  #printArea{display:block!important;font-size:11.5px;padding:0 2mm 0 1mm}
+  #printArea table{width:100%;border-collapse:collapse}
   #printArea h1{font-size:17px;margin:0 0 4px}
   #printArea table{font-size:11px}
   #printArea th{position:static}
+  #printArea .ck td,#printArea .ck th{border:1px solid #9AA6B8;padding:0 6px;height:9mm;vertical-align:middle}
+  #printArea .ck th{height:8mm;background:#E8EEF8;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #printArea .ck tr.cat td{height:6mm;background:#F3F5F9;font-weight:700;font-size:10.5px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #printArea .ck tr{break-inside:avoid}
+  #printArea .ck thead{display:table-header-group}
+  #printArea .box{display:inline-block;width:4.2mm;height:4.2mm;border:1.3px solid #333;border-radius:1px}
+  #printArea .pen{background:#fff}
+  #printArea .info td,#printArea .info th{border:1px solid #9AA6B8;padding:0 8px;height:9mm}
   @page{size:A4;margin:12mm}
 }
 </style>
@@ -152,6 +161,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--blue-d)}
       <button class="btn sm sumOnly" id="bClearRcv">입고수량 초기화</button>
       <button class="btn sm sumOnly" id="bCopyShort">부족 내역 복사(메일용)</button>
       <button class="btn sm" id="bCsv">CSV 저장</button>
+      <button class="btn sm pri" id="bPrintCheck">사급 체크리스트 인쇄</button>
       <button class="btn sm pri" id="bPrintReq">사급 요청서 인쇄</button>
       <button class="btn sm pri sumOnly" id="bPrintShort">부족 통보서 인쇄</button>
     </div>
@@ -494,6 +504,14 @@ $('bCsv').onclick=()=>{
   const csv='﻿'+lines.map(l=>l.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\r\n');
   const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download=`${name}_${new Date().toISOString().slice(0,10)}.csv`; a.click();
 };
+/* 인쇄 영역의 로고 이미지가 모두 로드된 뒤 인쇄 (최대 4초 대기) */
+const LOGOS=['https://raw.githubusercontent.com/bctechsemi/bct/refs/heads/main/images/bct_logo_transparent.png','https://bctechsemi.github.io/cm_h/images/hshi-tech_logo.png'];
+LOGOS.forEach(u=>{const i=new Image();i.src=u;});
+function printWhenReady(){
+  const imgs=[...$('printArea').querySelectorAll('img')];
+  const wait=imgs.map(i=>i.complete&&i.naturalWidth?Promise.resolve():new Promise(r=>{i.addEventListener('load',r,{once:true});i.addEventListener('error',r,{once:true});}));
+  Promise.race([Promise.all(wait),new Promise(r=>setTimeout(r,4000))]).then(()=>requestAnimationFrame(()=>window.print()));
+}
 function printDoc(kind){
   const today=new Date().toISOString().slice(0,10), sum=isSum();
   let R, title=kind==='short'?'사급품 부족 통보서':'사급품 요청서', scope, colsH, rowF;
@@ -518,10 +536,47 @@ function printDoc(kind){
    <tbody>${R.map((r,i)=>{const p=P[r.pid];return `<tr><td>${i+1}</td><td class="pn">${esc(p.pn)}</td><td>${esc(p.name)}</td>${rowF(r,p)}</tr>`}).join('')}</tbody></table>
    <p style="margin-top:14px;font-size:10.5px;color:#555">※ 사급 필요 = 도면 판독 세트당 수량 × 발주 세트 수 × (1+여유율), 올림. 전선 단위 m.</p>
    <table style="width:auto;margin-top:18px;margin-left:auto"><tr><th style="width:90px">작성</th><th style="width:90px">검토</th><th style="width:110px">확인(HS하이테크)</th></tr><tr><td style="height:50px"></td><td></td><td></td></tr></table>`;
-  window.print();
+  printWhenReady();
 }
 $('bPrintReq').onclick=()=>printDoc('req');
 $('bPrintShort').onclick=()=>printDoc('short');
+
+/* 고객 사급 체크리스트 — 사급 필요수량(세트 수 입력 시 인쇄, 0이면 빈칸) + 사급수량·확인은 펜 기입 */
+function printChecklist(){
+  const today=new Date().toISOString().slice(0,10), sum=isSum();
+  const ms=sum?MODELS:[model()];
+  let R=sum?sumRows():modelRows(model());
+  R=R.filter(r=>r.sup);
+  const anySets=ms.some(m=>(+S.sets[m.id]||0)>0);
+  if(anySets) R=R.filter(r=>r.net>0);
+  const scopeName=sum?'L3 케이블 하네스 (종합)':`${model().name} (${model().short})`;
+  const setsTbl=`<tr>${ms.map(m=>`<th style="text-align:center">${m.name}<div style="font-weight:400;font-size:9px">${m.dwg} ${m.rev}</div></th>`).join('')}</tr>
+    <tr>${ms.map(m=>{const n=+S.sets[m.id]||0;return `<td style="text-align:right;padding-right:14px"><b style="font-size:15px">${n?n:''}</b>&nbsp;&nbsp;세트</td>`}).join('')}</tr>`;
+  let body='',cat='',no=0;
+  R.forEach(r=>{
+    const p=P[r.pid];
+    if(p.cat!==cat){cat=p.cat;body+=`<tr class="cat"><td colspan="7">${CATS[cat]}</td></tr>`;}
+    no++;
+    const reqTxt=anySets?`<b style="font-size:12.5px">${fmt(r.req,p.unit)}</b>`:'';
+    body+=`<tr><td style="text-align:center">${no}</td><td style="font-family:var(--mono);font-weight:600;white-space:nowrap">${esc(p.pn)}</td><td style="font-size:10.5px">${esc(p.name)}</td><td style="text-align:center">${p.unit}</td><td class="pen" style="text-align:right">${reqTxt}</td><td class="pen"></td><td style="text-align:center"><span class="box"></span></td></tr>`;
+  });
+  if(!R.length){toast('사급 품목이 없습니다');return;}
+  $('printArea').innerHTML=`
+   <div style="display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #1F4E9C;padding-bottom:6px;margin-bottom:10px">
+     <div style="display:flex;align-items:center;gap:12px"><img src="https://bctechsemi.github.io/cm_h/images/hshi-tech_logo.png" alt="HS하이테크" style="height:36px;width:auto">
+       <div><h1>사급품 출고 체크리스트</h1><div>${esc(scopeName)} · 공급: (주)HS하이테크 → 수령: (주)비씨테크</div></div></div>
+     <div style="text-align:right;font-size:10.5px">발행일 ${today}</div></div>
+   <table class="info" style="margin-bottom:8px;table-layout:fixed">${setsTbl}</table>
+   <table class="info" style="margin-bottom:10px"><tr><th style="width:16%">발주번호</th><td style="width:34%">${esc(S.memo||'')}</td><th style="width:16%">출고일</th><td></td></tr>
+     <tr><th>출고 담당 (HS하이테크)</th><td></td><th>수령 확인 (BCT)</th><td></td></tr></table>
+   <table class="ck"><thead><tr><th style="width:7%">No</th><th style="width:18%">품번</th><th>품명 / 규격</th><th style="width:6%">단위</th><th style="width:13%">사급 필요수량</th><th style="width:13%">사급수량<div style="font-weight:400;font-size:9px">(실제 출고)</div></th><th style="width:7%">확인</th></tr></thead>
+   <tbody>${body}</tbody></table>
+   <p style="margin-top:10px;font-size:10px;color:#555;line-height:1.6">※ 사급 필요수량 = 도면 판독 세트당 수량 × 발주 세트 수 × (1+여유율: 핀·단자·튜브 ${S.lossPin}% / 전선 ${S.lossWire}%), 올림. 전선 단위 m.<br>
+   ※ 사급수량 칸에 실제 출고 수량을 기입하고, 필요수량과 일치하면 확인란에 ✓ 표시해 주세요. 부족 시 비고를 남겨 BCT에 통보 바랍니다.${anySets?'':'<br>※ 발주 세트 수가 입력되지 않아 사급 필요수량을 빈칸으로 인쇄했습니다.'}</p>
+   <table class="info" style="width:100%;margin-top:6px"><tr><th style="width:12%">비고</th><td style="height:18mm"></td></tr></table>`;
+  printWhenReady();
+}
+$('bPrintCheck').onclick=printChecklist;
 $('bExport').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,1)],{type:'application/json'}));a.download=`사급품관리_백업_${new Date().toISOString().slice(0,10)}.json`;a.click();};
 $('bImport').onclick=()=>$('fImport').click();
 $('fImport').onchange=e=>{const f=e.target.files[0]; if(!f)return; f.text().then(t=>{try{const s=JSON.parse(t); if(!s.sets) throw 0; S=fix(s); save(); renderAll(); toast('불러오기 완료');}catch(_){toast('올바른 백업 파일이 아닙니다');}}); e.target.value='';};
