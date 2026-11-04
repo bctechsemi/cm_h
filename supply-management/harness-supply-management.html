@@ -17,7 +17,7 @@
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 "Pretendard","Pretendard Variable",-apple-system,"Malgun Gothic",sans-serif}
-header{background:#fff;color:var(--ink);padding:10px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;border-bottom:3px solid var(--blue)}
+header{position:sticky;top:0;z-index:50;box-shadow:0 2px 8px rgba(21,59,120,.08);background:#fff;color:var(--ink);padding:10px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;border-bottom:3px solid var(--blue)}
 header .logo{height:46px;width:auto;display:block}
 header .divider{width:1px;height:34px;background:var(--line)}
 header h1{font-size:18px;margin:0;font-weight:700;letter-spacing:-.2px;color:var(--blue-d)}
@@ -102,7 +102,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--blue-d)}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 16px;border-radius:8px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:99}
 .toast.show{opacity:1}
 #printArea{display:none}
-@media (max-width:700px){main{padding:12px}header{padding:12px}.cables{grid-template-columns:1fr}}
+@media (max-width:700px){main{padding:12px}header{padding:8px 12px;gap:10px}header .logo{height:34px}header .divider,header .sub{display:none}header h1{font-size:15px}header .btn{padding:5px 9px;font-size:12px}.cables{grid-template-columns:1fr}}
 @media print{
   body{background:#fff}
   header,main{display:none!important}
