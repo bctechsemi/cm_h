@@ -223,7 +223,7 @@ const P={
  'G-JOPG-9':{cat:'acc',pn:'JOPG-9',name:'Cable Gland JEONO PG9 (Lock nut 분리 포장)',unit:'ea',sup:true},
 
  'U-FAN':{cat:'unit',pn:'DC FAN',name:'DC FAN (리드선 포함)',unit:'ea',sup:true},
- 'U-363010':{cat:'unit',pn:'363010-D01',name:'전원 코드 (Plug) 2,500mm',unit:'ea',sup:true},
+ 'U-363010':{cat:'unit',pn:'ML-10SP100',name:'전원 코드 (Plug) — (주)라인테크시스템 · 5,000mm 절단품',unit:'ea',sup:true,note:'도면 수정 필요: 363010-D01 2,500mm → 5,000mm (고객 요청) · 10M 구입 후 5M 절단 (10M 1개 = 2세트분)'},
 
  'W-1015-BLK-14':{cat:'wire',pn:'UL1015 BLK #14',name:'UL1015 AWG14 Black',unit:'m',sup:true},
  'W-1015-GY-14':{cat:'wire',pn:'UL1015 G/Y #14',name:'UL1015 AWG14 Green/Yellow',unit:'m',sup:true},
@@ -297,7 +297,7 @@ const MODELS=[
   cables:[
    {pn:'26-LH03-07-001-00',name:'PWR1 Internal Cable',pg:8,bom:[['H-09200030320',1],['C-09120043151',1],['P-09320006205',4],['W-1015-BLK-14',0.4*3],['W-1015-GY-14',0.2],['T-JOR-1.5-6',4],['TB-NUM',8]],memo:'JOR-1.5-6 링단자 도급(견적 비고)'},
    {pn:'26-LH03-07-002-00',name:'3-Phase Bridge Cable',pg:9,bom:[['W-1015-BLK-14',0.25*4],['T-FER-14',4],['T-JOR-1.5-6',4],['TB-NUM',8]],memo:'JOR-1.5-6 링단자 도급(견적 비고)'},
-   {pn:'26-LH03-07-003-00',name:'PWR2 Internal Cable',pg:10,bom:[['U-363010',1],['G-JOPG-9',1],['C-VHR-3N',1],['P-SVH-21T',2],['T-RING-NS',1],['TB-NUM',6]],memo:'전원코드 심선(70mm) 사용 · Lock Nut는 분해 후 별도 포장 납품'},
+   {pn:'26-LH03-07-003-00',name:'PWR2 Internal Cable',pg:10,bom:[['U-363010',1],['G-JOPG-9',1],['C-VHR-3N',1],['P-SVH-21T',2],['T-RING-NS',1],['TB-NUM',6]],memo:'⚠ 도면 수정 필요: Cable 363010-D01 Length 2,500mm → 5,000mm 변경 요청 · 실사용 케이블 ML-10SP100 ((주)라인테크시스템, 10M 구입 → 5M 절단) · 전원코드 심선(70mm) 사용 · Lock Nut는 분해 후 별도 포장 납품'},
    {pn:'26-LH03-07-004-00',name:'SMPS Connector Cable',pg:11,bom:[['C-VHR-6N',1],['P-SVH-21T',2],['W-1007-BLU-20',0.12*2],['T-FER-20',2],['TB-NUM',4]],memo:'VHR-6N 핀 품번 도면 미표기 → VH 계열 SVH-21T-P1.1 적용 가정'},
    {pn:'26-LH03-07-005-00',name:'PWR1 External Cable',pg:12,bom:[['H-09200030420',1],['C-09120043051',1],['P-09320006105',4],['W-1015-BLK-14',5*3],['W-1015-GY-14',5],['T-RING-NS',4],['TB-NUM',8]],memo:'케이블 글랜드 도면 미표기 · O형 단자 규격 미표기'},
    {pn:'26-LH03-07-006-00',name:'LED Heater-1 Cable (3 sheets)',pg:'13~15',bom:B_HTR(),memo:'LED CH1~6 12선 + 신호 11선 + RTD CH1~6 12선 = 35핀'},
