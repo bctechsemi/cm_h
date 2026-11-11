@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>BCT Review Room</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/bctechsemi/bct/refs/heads/main/images/bct_favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Gowun+Batang:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#1F4E9C; --blue-d:#153B78; --blue-l:#E3ECFA;
+  --ink:#1b2430; --muted:#5b6676; --line:#d5dbe4; --bg:#f4f6fa; --card:#ffffff;
+  --warn:#b42318; --warn-bg:#fde8e8; --ok:#1e7b34; --ok-bg:#e8f0e0; --new-bg:#fff4d6;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:"Google Sans","Noto Sans KR",system-ui,sans-serif;font-size:15px;line-height:1.55}
+.wrap{max-width:1080px;margin:0 auto;padding:0 16px}
+header{background:var(--blue-d);color:#fff}
+.hd{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding:26px 0 22px;flex-wrap:wrap}
+.hd h1{font-family:"Google Sans","Gowun Batang",serif;font-size:26px;margin:4px 0 0;letter-spacing:-.3px}
+.hd .sub{opacity:.82;font-size:13.5px;margin-top:4px}
+.edition{display:inline-block;background:#fff;color:var(--blue-d);border-radius:999px;padding:2px 10px;font-size:12px;font-weight:700}
+.brand{font-weight:700;letter-spacing:.08em;font-size:15px;border-top:2px solid #fff;border-bottom:2px solid #fff;padding:2px 6px}
+main{padding:26px 0 60px}
+h2{font-family:"Google Sans","Gowun Batang",serif;font-size:20px;margin:0 0 12px;color:var(--blue-d)}
+h3{font-size:16px;margin:26px 0 10px}
+.doc{display:grid;grid-template-columns:110px 1fr auto;gap:18px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:12px;text-decoration:none;color:inherit}
+.doc:hover{border-color:var(--blue)}
+.doc .date{font-family:"JetBrains Mono",monospace;font-size:13px;color:var(--muted)}
+.doc .t{font-size:17px;font-weight:700;color:var(--blue-d)}
+.doc .t small{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--muted);font-weight:400;margin-left:6px}
+.doc .d{color:var(--muted);font-size:13.5px;margin-top:2px}
+.doc .ask{font-size:13px;margin-top:6px}
+.pill{display:inline-block;font-size:12px;padding:2px 10px;border-radius:999px;white-space:nowrap;font-weight:600}
+.p-req{background:var(--new-bg);color:#8a6100}
+.p-done{background:var(--ok-bg);color:var(--ok)}
+.p-old{background:#eef0f3;color:#6b7480}
+.go{font-size:13px;font-weight:600;color:var(--blue);white-space:nowrap}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 20px}
+ul.clean{margin:4px 0 0;padding-left:18px}
+ul.clean li{margin:4px 0}
+footer{color:var(--muted);font-size:12px;padding:20px 0 40px;border-top:1px solid var(--line)}
+@media(max-width:700px){.doc{grid-template-columns:1fr;gap:6px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="hd">
+      <div>
+        <span class="edition">Customer Review</span>
+        <h1>BCT 검토 자료실</h1>
+        <div class="sub">설계안 · 도면 · 확인 요청 자료를 한곳에서 확인하실 수 있습니다 — ㈜비씨테크</div>
+      </div>
+      <div class="brand">BCT</div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <h2>검토 자료</h2>
+  <div id="docs"></div>
+
+  <h3>검토 · 회신 방법</h3>
+  <div class="card">
+    <ul class="clean">
+      <li>자료를 열어 <b>‘확인사항’ 탭</b>의 확인 요청 항목을 보시고, 담당자 메일로 회신해 주시면 됩니다.</li>
+      <li>항목마다 있는 <b>Deep Dive</b> 버튼을 누르면 그림과 함께 자세한 설명이 나옵니다.</li>
+      <li>개정판이 나오면 이 목록에 새 Rev로 추가되고, 이전 판은 ‘이전 판’으로 남겨 둡니다.</li>
+      <li>3D 모델 탭은 인터넷에 연결된 상태에서 보입니다. Chrome 또는 Edge를 권장합니다.</li>
+    </ul>
+  </div>
+</main>
+<footer><div class="wrap">㈜비씨테크 (BCT) · Customer Review Room</div></footer>
+
+<script>
+/* 새 자료는 이 목록 맨 위에 추가합니다. status: 'req' 검토 요청 · 'done' 확정 · 'old' 이전 판 */
+const DOCS=[
+  {date:'2026-11-11', title:'DIO Control Signal Panel', rev:'Rev.A', status:'req',
+   href:'dio-control-signal-panel/RevA.html',
+   desc:'4챔버 · 세로 4열 · 19" 12U 신규 판넬 설계안 — BOM · 2D 도면 · 판넬 가공도 · 이미지 뷰 · 3D 모델 · 결선도 · 단자 배열',
+   ask:'확인 요청 4건 — DI · DO 방식 (PNP / NPN) · STOP · EMO 신호 논리 · EMO 인터록 접점 · 전면 판넬 색상'},
+];
+const ST={req:['검토 요청','p-req'],done:['확정','p-done'],old:['이전 판','p-old']};
+document.getElementById('docs').innerHTML=DOCS.map(d=>`<a class="doc" href="${d.href}">
+  <div><div class="date">${d.date}</div><span class="pill ${ST[d.status][1]}">${ST[d.status][0]}</span></div>
+  <div><div class="t">${d.title}<small>${d.rev}</small></div><div class="d">${d.desc}</div>${d.ask?`<div class="ask">${d.ask}</div>`:''}</div>
+  <div class="go">열기 →</div></a>`).join('');
+</script>
+</body>
+</html>

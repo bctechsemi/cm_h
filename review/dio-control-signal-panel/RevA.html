@@ -1,0 +1,974 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>DIO Control Signal Panel</title>
+<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEYAAABGCAYAAABxLuKEAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAOdEVYdFNvZnR3YXJlAEZpZ21hnrGWYwAAALtJREFUeAHt2zEVwgAUBMEfHj7oEUMfb/RxhB0QQLZJmhQzEvZde8vj9f4Of27DLmGCMEGYIEwQJggThAnCBGGCMEGYIEwQJtznhM+2zpU9122OspggTBAmCBOECcIEYYIwQZggTBAmCBOECcIEYYIwQZggTBAmCBOECcIEYYIwQZggTBAmCBOECcIEYYIwQZggTBAmCBOECcIEYcLiXrzPYoIwQZggTBAmCBOECcIEYYIwQZggTBAmCBN+7o0Hnb+9JR4AAAAASUVORK5CYII=">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Gowun+Batang:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#1F4E9C; --blue-d:#153B78; --blue-l:#E3ECFA;
+  --ink:#1b2430; --muted:#5b6676; --line:#d5dbe4; --bg:#f4f6fa; --card:#ffffff;
+  --warn:#b42318; --warn-bg:#fde8e8; --ok:#1e7b34; --ok-bg:#e8f0e0; --new-bg:#fff4d6; --off:#8a929c; --off-bg:#eef0f3;
+  --cad-line:#1b2430; --cad-dim:#1F4E9C; --cad-fill:#eef2f8; --cad-hole:#b42318; --cad-ghost:#9aa4b2;
+  --w24:#c8372d; --w0:#6b7480; --wsig:#1F4E9C;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:"Google Sans","Noto Sans KR",system-ui,sans-serif;font-size:15px;line-height:1.55}
+.mono{font-family:"JetBrains Mono",ui-monospace,monospace}
+header{background:var(--blue-d);color:#fff}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+.hd{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding:22px 0 14px;flex-wrap:wrap}
+.hd h1{font-family:"Google Sans","Gowun Batang",serif;font-size:26px;margin:0;font-weight:700;letter-spacing:-.3px}
+.hd .sub{opacity:.8;font-size:13px;margin-top:4px}
+.badge{display:inline-block;border:1px solid rgba(255,255,255,.45);border-radius:999px;padding:2px 10px;font-size:12px;margin-right:6px}
+.edition{display:inline-block;background:#fff;color:#153B78;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:700;margin-right:6px}
+.logo{height:34px;width:auto;display:block;margin-bottom:6px}
+nav.tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+nav.tabs button{background:none;border:0;color:rgba(255,255,255,.72);font:inherit;font-size:14px;padding:10px 14px;border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap}
+nav.tabs button.on{color:#fff;border-bottom-color:#fff;font-weight:500}
+main{padding:22px 0 60px}
+section.tab{display:none}
+section.tab.on{display:block}
+h2{font-family:"Google Sans","Gowun Batang",serif;font-size:21px;margin:6px 0 12px;color:var(--blue-d)}
+h3{font-size:16px;margin:22px 0 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+.grid{display:grid;gap:14px}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g2{grid-template-columns:1fr 1fr}
+@media(max-width:860px){.g4{grid-template-columns:1fr 1fr}.g2{grid-template-columns:1fr}}
+.stat .k{font-size:12px;color:var(--muted)}
+.stat .v{font-size:24px;font-weight:700;color:var(--blue);font-family:"JetBrains Mono",monospace}
+.stat .v small{font-size:13px;color:var(--muted);font-weight:400;font-family:"Google Sans","Noto Sans KR",sans-serif}
+ul.clean{margin:6px 0 0;padding-left:18px}
+ul.clean li{margin:3px 0}
+.pill{display:inline-block;font-size:11.5px;padding:1px 8px;border-radius:999px;white-space:nowrap}
+.p-hs{background:var(--ok-bg);color:var(--ok)}
+.p-conf{background:var(--warn-bg);color:var(--warn)}
+.p-new{background:var(--new-bg);color:#8a6100}
+.p-off{background:var(--off-bg);color:var(--off)}
+.p-buy{background:var(--blue-l);color:var(--blue)}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+#bomTbl{min-width:900px}#wireTbl{min-width:760px}#termTbl{min-width:680px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{background:var(--blue-l);color:var(--blue-d);font-weight:600;font-size:12.5px;position:sticky;top:0;white-space:nowrap}
+td.n,th.n{text-align:right;font-family:"JetBrains Mono",monospace;white-space:nowrap}
+td.c{font-family:"JetBrains Mono",monospace;white-space:nowrap;color:var(--blue-d);font-weight:600}
+tr.cat td{background:var(--bg);font-weight:700;color:var(--blue);font-size:13px}
+td .nm{font-weight:500}
+td .sp{color:var(--muted);font-size:12.5px}
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.toolbar label{font-size:13px;color:var(--muted)}
+.toolbar input[type=number]{width:70px;padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink);font:inherit}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:4px 12px;font:inherit;font-size:13px;cursor:pointer}
+.chip.on{background:var(--blue);border-color:var(--blue);color:#fff}
+.total{margin-top:10px;font-size:13px;color:var(--muted)}
+.cad{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:16px}
+.cad svg{width:100%;height:auto;display:block}
+.cad .cap{font-size:12.5px;color:var(--muted);padding:6px 6px 2px}
+.cad svg text{font-family:"JetBrains Mono","Noto Sans KR",monospace}
+.cad .ttl{font-family:"Google Sans","Noto Sans KR",sans-serif;font-weight:700}
+.cad2{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:14px;align-items:start}
+@media(max-width:860px){.cad2{grid-template-columns:1fr}}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin-top:10px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;margin-right:5px}
+.note{font-size:12.5px;color:var(--muted);margin-top:8px}
+.open li{margin:8px 0}
+.open b{color:var(--warn)}
+.open.done b{color:var(--ink)}
+.who{display:inline-block;font-size:11px;font-weight:700;border-radius:4px;padding:0 6px;margin-right:6px;vertical-align:1px}
+.who.c{background:var(--blue-l);color:var(--blue)}.who.b{background:var(--new-bg);color:#8a6100}
+.cw{display:inline-block;width:11px;height:11px;border-radius:2px;vertical-align:-1px;margin-right:5px;border:1px solid #9aa4b2}
+.ask{margin:6px 0 4px;padding:10px 14px;background:var(--bg);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:14.5px}
+.askn{font-size:12.5px;color:var(--muted);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.ddbtn{font:inherit;font-size:12.5px;font-weight:600;color:#fff;background:var(--blue);border:0;border-radius:999px;padding:3px 12px;cursor:pointer}
+.ddbtn:hover{background:var(--blue-d)}
+dialog#dd{border:0;border-radius:14px;padding:0;width:min(860px,94vw);max-height:88vh;box-shadow:0 20px 60px rgba(10,20,40,.35);color:var(--ink)}
+dialog#dd::backdrop{background:rgba(15,25,45,.55)}
+#dd .ddh{position:sticky;top:0;background:var(--blue-d);color:#fff;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;z-index:1}
+#dd .ddh .k{font-size:11.5px;letter-spacing:.08em;opacity:.75}
+#dd .ddh h4{margin:2px 0 0;font-size:18px;font-family:"Google Sans","Gowun Batang",serif}
+#dd .ddx{background:none;border:1px solid rgba(255,255,255,.5);color:#fff;border-radius:6px;font:inherit;font-size:13px;padding:4px 10px;cursor:pointer}
+#dd .ddb{padding:18px 22px 22px;font-size:14.5px}
+#dd .ddb h5{font-size:15px;color:var(--blue-d);margin:18px 0 8px}
+#dd .ddb h5:first-child{margin-top:0}
+#dd .ddb p{margin:6px 0}
+#dd .ddb table{font-size:13.5px}
+#dd .ddb .tip{background:var(--new-bg);border-radius:8px;padding:10px 14px;margin-top:12px;font-size:13.5px}
+#dd .ddb svg{width:100%;height:auto;display:block;background:#f7f9fc;border:1px solid var(--line);border-radius:8px}
+#dd .ddb svg text{font-family:"Google Sans","Noto Sans KR",sans-serif}
+.warnbox{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin:0 0 14px;font-size:14px;color:var(--ink)}
+.warnbox .wh{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.warnbox p{margin:6px 0 0;color:var(--muted);font-size:13.5px}
+.p-warn{background:var(--warn);color:#fff;font-weight:700}
+.imgv{background:#1f2630;border-color:#1f2630}
+.imgv .cap{color:#c3ccd8}
+.swatch{display:flex;gap:12px;align-items:center;cursor:pointer}
+.swatch i{width:46px;height:46px;border-radius:8px;border:1px solid rgba(0,0,0,.18);flex:none}
+.swatch.on{outline:2px solid var(--blue);outline-offset:2px}
+#v3d{position:relative;height:640px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:linear-gradient(#eef2f8,#dfe6f0)}
+@media(max-width:700px){#v3d{height:480px}}
+#v3d canvas{display:block}
+.lbl{position:absolute;transform:translate(-50%,-120%);background:rgba(21,59,120,.92);color:#fff;font-size:11.5px;padding:2px 7px;border-radius:5px;white-space:nowrap;pointer-events:none}
+.lbl.rear{background:rgba(110,118,130,.92)}
+.ctl{position:absolute;left:10px;top:10px;display:flex;flex-wrap:wrap;gap:6px;max-width:calc(100% - 20px);z-index:2;align-items:center}
+.ctl button{font:inherit;font-size:12.5px;padding:5px 10px;border-radius:6px;border:1px solid rgba(0,0,0,.15);background:rgba(255,255,255,.92);color:#1b2430;cursor:pointer}
+.ctl button.on{background:#1F4E9C;color:#fff;border-color:#1F4E9C}
+.ctlsel{font-size:12.5px;background:rgba(255,255,255,.92);border:1px solid rgba(0,0,0,.15);border-radius:6px;padding:3px 8px}
+.ctlsel select{font:inherit;font-size:12.5px;border:0;background:transparent}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;margin-right:5px}
+footer{color:var(--muted);font-size:12px;padding:20px 0 40px;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="hd">
+      <div>
+        <div><span class="edition" id="bEd">내부용</span><span class="badge" id="bRev"></span><span class="badge" id="bDate"></span><a class="badge" style="color:#fff;text-decoration:none" href="https://bctechsemi.github.io/cm_h/review/">BCT 검토 자료실 ↗</a></div>
+        <h1>DIO Control Signal Panel</h1>
+        <div class="sub" id="hSub">신규 1대 · 4챔버 세로 4열 · BOM / 2D / 결선 — ㈜비씨테크 · 내부용</div>
+      </div>
+      <img class="logo" src="data:image/png;base64,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" alt="BCT">
+    </div>
+    <nav class="tabs" id="tabs">
+      <button data-t="ov" class="on">개요</button>
+      <button data-t="bom">BOM</button>
+      <button data-t="d2">2D 도면</button>
+      <button data-t="pl">판넬 도면</button>
+      <button data-t="img">이미지 뷰</button>
+      <button data-t="d3">3D 모델</button>
+      <button data-t="sch">결선도</button>
+      <button data-t="io">단자 · 배선</button>
+      <button data-t="op">확인사항</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+<!-- 개요 -->
+<section class="tab on" id="t-ov">
+  <h2>납품 범위</h2>
+  <div class="grid g4" id="stats"></div>
+  <div class="grid g2" style="margin-top:14px">
+    <div class="card">
+      <h3 style="margin-top:0">BCT 작업</h3>
+      <ul class="clean">
+        <li>19" 랙 판넬 <b>신규 제작</b> (SPCC 2.0t 분체도장) · 타공 Ø25 × 4, Ø16 × 12</li>
+        <li>전면: CH1~CH4 <b>세로 4열</b> — 열마다 EMO(가드 포함) + RUN · STOP · RESET 조광 버튼</li>
+        <li>후면: 채널별 <b>CP30 · PTFIX ± · MY-4SL 릴레이 · 인터페이스 단자 Xn</b>을 각 열 아래에 묶어 배치</li>
+        <li>내부 배선 96가닥 (AWG20, 신호 청 · +24V 적 · 0V 백), 전 가닥 마킹 · 끝단 처리</li>
+        <li>출하 전 통전 · IO 점검 (채널별 DI 4 · DO 3 · 인터록 접점)</li>
+        <li><b>전 부품 BCT 구매</b> (EMO 스위치 포함, 사급 없음) · 명판 문구 BCT 결정 · 도장 색상 고객 선택</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">고객 측 · 제외</h3>
+      <ul class="clean">
+        <li>챔버별 24VDC 전원 4회선 공급 (CH마다 독립)</li>
+        <li>챔버 ↔ 판넬 케이블 (X1~X4 단자에 직결) — 고객 범위</li>
+        <li>장착 랙: 넥시 NX-SH1200 (22U · 케이지너트 · 19") — 기존 판넬과 같은 랙</li>
+        <li>제외: SW4 · SW5 (미사용, 타공 없음)</li>
+      </ul>
+    </div>
+  </div>
+  <h3>설계 기준</h3>
+  <div class="tbl-wrap"><table id="basisTbl"></table></div>
+  <h3>신호 흐름 (채널 1개)</h3>
+  <div class="cad"><div id="svgFlow"></div><div class="cap">CH1~CH4 동일 · 채널끼리 전원과 신호가 완전히 분리됩니다.</div></div>
+</section>
+
+<!-- BOM -->
+<section class="tab" id="t-bom">
+  <h2>부품 BOM <span class="mono" style="font-size:14px;color:var(--muted)" id="bomRev"></span></h2>
+  <div class="toolbar">
+    <span id="chips"></span>
+  </div>
+  <div class="tbl-wrap"><table id="bomTbl"></table></div>
+</section>
+
+<!-- 2D -->
+<section class="tab" id="t-d2">
+  <h2>2D 도면</h2>
+  <div class="cad2">
+    <div class="cad"><div id="svgFront"></div><div class="cap">① 전면 배치도 — 19" 12U (482.6 × 532.6). 치수 mm. 랙 넥시 NX-SH1200 (케이지너트) → EIA 19" 홀 피치 465.1, 고정 슬롯은 U1 · U7 · U12 가운데 홀.</div></div>
+    <div>
+      <h3 style="margin-top:0">타공 · 위치</h3>
+      <div class="tbl-wrap"><table id="holeTbl"></table></div>
+      <div class="card" style="margin-top:12px;font-size:13.5px">
+        <b>판넬</b> SPCC 2.0t — EMO 허용 6 t 이하, KDX 1~7 t<br>
+        <b>KDX 연속 가공</b> 최소 피치 세로 30 · 가로 25 → 설계 세로 48 · 열 간격 100 OK<br>
+        <b>명판</b> 기존과 같은 노란 라벨 16장 (CH1~4 · RUN · STOP · RESET)<br>
+        <b>EMO 가드</b> KG-EMS-25, EMO 너트로 함께 체결
+      </div>
+    </div>
+  </div>
+  <div class="cad2" style="margin-top:4px">
+    <div class="cad"><div id="svgRear"></div><div class="cap">② 후면 배치도 — 뒤에서 본 모습 (좌우 반전, CH1이 오른쪽). 부품을 채널별로 묶어 각 열 바로 아래에 둡니다.</div></div>
+    <div>
+      <h3 style="margin-top:0">후면 구역</h3>
+      <div class="tbl-wrap"><table id="zoneTbl"></table></div>
+      <div class="card" style="margin-top:12px;font-size:13.5px">
+        <b>레일 A</b> Kn 30 + PDn+ 28.6 + PDn− 28.6 = 87.2 / CH<br>
+        <b>레일 B</b> CBn 12 + 단자 5.2 × 14 + 커버 2.2 = 87.0 / CH<br>
+        <b>후면 깊이</b> 약 80 mm (릴레이 + 소켓 + 레일)<br>
+        <b>고정</b> 레일 · 덕트 · 타이 마운트는 판넬 압입 M4 스터드<br>
+        <b>접지</b> M5 스터드 → AWG14 녹/황 → 랙 접지
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 판넬 도면 -->
+<section class="tab" id="t-pl">
+  <h2>전면 판넬 가공도 <span class="mono" style="font-size:14px;color:var(--muted)">19" 12U · SPCC 2.0t · Rev.A</span></h2>
+  <div class="grid g4" style="margin-bottom:14px">
+    <div class="card stat"><div class="k">외형</div><div class="v">482.6<small> × 532.6 mm</small></div></div>
+    <div class="card stat"><div class="k">타공 · 슬롯</div><div class="v">22<small> (Ø25 × 4 · Ø16 × 12 · 슬롯 × 6)</small></div></div>
+    <div class="card stat"><div class="k">PEM 스터드 (후면)</div><div class="v">21<small> (M4 × 20 · M5 × 1)</small></div></div>
+    <div class="card stat"><div class="k">도장</div><div class="v">RAL<small> 7032 / 1013 / 7035 고객 선택</small></div></div>
+  </div>
+  <div class="cad"><div id="svgPlate"></div><div class="cap">정면에서 본 그림. 치수 mm, 원점 = 판넬 왼쪽 위 모서리. 빨강 = 관통 타공 · 슬롯, 초록 점선 = 후면 PEM 스터드 (앞면 플러시). 열 · 행 위치는 2D 도면 탭과 같은 데이터입니다.</div></div>
+  <h3>가공 목록</h3>
+  <div class="tbl-wrap"><table id="plHoleTbl"></table></div>
+  <h3>가공 · 도장 주기</h3>
+  <div class="card"><ul class="clean">
+    <li>재질 SPCC 2.0t · 일반 공차 KS B ISO 2768-m · 위치 공차 ±0.3 · 버 제거</li>
+    <li>PEM 스터드는 <b>도장 전 압입</b> (후면에서 압입, 앞면 플러시) · M5 접지 스터드 주변 Ø15 <b>도장 마스킹</b></li>
+    <li>분체도장 — <b>RAL 7032 · RAL 1013 · RAL 7035 중 고객 선택</b> · 광택 · 주름(엠보) 여부는 시편으로 확인</li>
+    <li>판넬 두께 조건 — EMO(KGE-J) 6 t 이하 · KDX 1~7 t → 2.0t 적합</li>
+    <li>명판(노란 라벨)은 도장 후 부착 · 위치는 2D 도면 ① 참조</li>
+    <li>판넬 높이 <b>12U 확정</b> — 덕트 2 · DIN 레일 2단 구성 유지 (11U 압축안 · 6U 분리안 미채택)</li>
+  </ul></div>
+</section>
+
+<!-- 이미지 뷰 -->
+<section class="tab" id="t-img">
+  <h2>이미지 뷰 <span class="mono" style="font-size:14px;color:var(--muted)">전면 · 색상 비교</span></h2>
+  <div class="toolbar"><span id="colorChips"></span><button class="chip" id="lampChip">램프 점등</button></div>
+  <div class="cad2">
+    <div class="cad imgv"><div id="svgImg"></div><div class="cap" id="imgCap"></div></div>
+    <div>
+      <h3 style="margin-top:0">색상 후보</h3>
+      <div class="grid" id="colorCards"></div>
+      <div class="card" style="margin-top:12px;font-size:13.5px">
+        <b>화면 색은 근사치입니다.</b> 모니터마다 달라 보이니 실제 색은 RAL 색상표 또는 도장 시편으로 확인하세요.<br>
+        <b>참고</b> RAL 7035는 상용 19" 블랭크 패널에도 있는 색이지만, 타공 · 스터드 가공이 필요해 세 색 모두 판금 제작 후 분체도장합니다.
+      </div>
+      <p class="note">색상을 고르면 3D 모델 탭에도 같은 색이 적용됩니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 3D -->
+<section class="tab" id="t-d3">
+  <h2>3D 모델 <span class="mono" style="font-size:14px;color:var(--muted)">넥시 NX-SH1200 (22U) 장착</span></h2>
+  <div id="v3d">
+    <div class="ctl" id="ctl3d">
+      <button data-v="iso" class="on">등각</button>
+      <button data-v="front">정면</button>
+      <button data-v="rear">후면</button>
+      <button data-v="side">측면</button>
+      <button data-tg="door">전면 도어</button>
+      <button data-tg="side" class="on">측판</button>
+      <button data-tg="lbl" class="on">라벨</button>
+      <span class="ctlsel">판넬 상단 <select id="uTop"></select></span>
+      <span id="c3dColors"></span>
+    </div>
+  </div>
+  <div class="legend">
+    <span><i style="background:#B8B799"></i>전면 판넬 (선택 색상)</span>
+    <span><i style="background:#F2A43A"></i>EMO 가드</span>
+    <span><i style="background:#2b2f36"></i>릴레이 MY-4SL</span>
+    <span><i style="background:#D4483F"></i>PTFIX +24V</span>
+    <span><i style="background:#2E62C8"></i>PTFIX 0V</span>
+    <span><i style="background:#B9C0CA"></i>단자 PT 2,5 · 덕트</span>
+  </div>
+  <p class="note">드래그 = 회전 · 휠/핀치 = 확대 · 우클릭 드래그 = 이동. 랙은 제품 페이지 치수(H1200 × W600 × D1000, 22U)로 그린 단순 형상이고, 판넬 장착 높이는 ‘판넬 상단’에서 바꿀 수 있습니다. 랙 안의 기존 장비 · 선반은 표시하지 않았습니다.</p>
+</section>
+
+<!-- 결선도 -->
+<section class="tab" id="t-sch">
+  <h2>결선도 <span class="mono" style="font-size:14px;color:var(--muted)">CHn · CH1~CH4 동일</span></h2>
+  <div class="cad"><div id="svgSch"></div><div class="cap">n = 채널 번호(1~4). 라벨 n01~n24는 전선 번호(채널-번호, 예: 2-08). 적 = +24V · 회 = 0V · 청 = 신호.</div></div>
+  <div class="grid g2">
+    <div class="card">
+      <h3 style="margin-top:0">동작</h3>
+      <ul class="clean">
+        <li>EMOn b접점이 닫힌 동안 Kn 코일 ON → 접점1 · 2 · 3 닫힘 = 정상</li>
+        <li>EMO를 누르거나 단선되면 Kn OFF → <b>EMO OK = OFF</b>, 인터록 개방</li>
+        <li>STOP은 b접점 — 정상 ON, 누름 · 단선 시 OFF</li>
+        <li>램프는 챔버 DO가 X1(+)를 구동, X2(−)는 PDn− (0V) · LED 32 mA</li>
+        <li>PNP(소스) 기준. NPN이면 스위치 공통을 0V로, 램프 공통을 +24V로 바꿈 (단자 배열은 같음)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">실물 확인 후 확정</h3>
+      <ul class="clean">
+        <li>MY-4SL 핀 번호 — <b>실물 인쇄로 확인 완료</b> (COM 9~12 · NO 5~8 · NC 1~4 · 코일 13-14)</li>
+        <li>코일 정격 24VDC · 극성 13(−) / 14(+) — <b>확인 완료</b></li>
+        <li>KDX 탭 — a접점 1-4 · b접점 2-3 · 램프 X1(+) / X2(−) — <b>KG오토 자료로 확인 완료</b></li>
+        <li>접점4(12-8)와 NC 접점(1~4)은 사용하지 않음</li>
+      </ul>
+    </div>
+  </div>
+  <h3>전선 사양 검토 — AWG20</h3>
+  <div class="grid g2">
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>검토 항목</th><th>결과</th></tr></thead><tbody>
+      <tr><td>실부하 (CH당)</td><td>램프 32 mA × 3 + 코일 38 mA ≈ <b>0.13 A</b></td></tr>
+      <tr><td>설계 최대 전류</td><td>3 A (고객 기준) · 0.5 mm² 판넬 내부 배선으로 여유</td></tr>
+      <tr><td>과전류 보호</td><td>CP30-BA <b>5 A</b> (고객 선정) — 실부하 0.13 A 대비 충분, 단락 시 AWG20 보호</td></tr>
+      <tr><td>단자 적합성</td><td>PT · PTFIX 0.14~2.5 mm² · EMO M3.5 · CP30 M4 (0.25~1.65 mm²) · KDX 2.8 mm 탭(리셉터클 #110, 0.5~1.25 mm²) 모두 적합</td></tr>
+      <tr><td>전압 강하</td><td>판넬 내부 0.5 m 이하 · 0.13 A → 무시 가능</td></tr>
+      <tr><td>절연</td><td>UL1007 (300 V, 80 ℃) → 24 VDC에 충분</td></tr>
+      <tr><td><b>결론</b></td><td>AWG20 유지. 바꾼 점은 <b>색상 구분</b>(+24V 적 · 0V 백)</td></tr>
+    </tbody></table></div>
+    <div class="tbl-wrap"><table id="wireSpecTbl"></table></div>
+  </div>
+</section>
+
+<!-- 단자 · 배선 -->
+<section class="tab" id="t-io">
+  <h2>챔버 인터페이스 단자 <span class="mono" style="font-size:14px;color:var(--muted)">X1~X4 동일 · 채널당 14점</span></h2>
+  <div class="grid g4" id="ioStats" style="margin-bottom:14px"></div>
+  <div class="tbl-wrap"><table id="termTbl"></table></div>
+  <h3>배선 목록</h3>
+  <div class="toolbar"><span id="chChips"></span><span class="note" style="margin:0">전선 번호 = 채널-번호 · 끝단: 푸시인은 페룰, 나사 단자는 절연 링단자, KDX 버튼 탭은 리셉터클 #110</span></div>
+  <div class="tbl-wrap"><table id="wireTbl"></table></div>
+</section>
+
+<!-- 확인사항 -->
+<section class="tab" id="t-op">
+  <h2>확인 필요</h2>
+  <div class="card"><ol class="open" id="openList"></ol></div>
+  <h3>확정 사항</h3>
+  <div class="card"><ol class="open done" id="doneList"></ol></div>
+</section>
+</main>
+<footer><div class="wrap" id="foot"></div></footer>
+
+<dialog id="dd">
+  <div class="ddh"><div><div class="k">DEEP DIVE</div><h4 id="ddTitle"></h4></div><button class="ddx" id="ddClose">닫기 ✕</button></div>
+  <div class="ddb" id="ddBody"></div>
+</dialog>
+
+<!-- Deep Dive 1 : PNP / NPN -->
+<template id="dd-pnp" data-title="DI · DO 방식 — PNP와 NPN의 차이">
+  <h5>한 줄 요약</h5>
+  <p>신호가 ON일 때 신호선에 <b>PNP는 +24V</b>, <b>NPN은 0V</b>가 걸립니다. 전류가 흐르는 방향이 서로 반대라서, 받는 쪽(챔버 DIO 모듈) 방식에 맞춰 판넬 배선을 정해야 합니다.</p>
+  <svg viewBox="0 0 820 230">
+    <text x="205" y="24" font-size="14" font-weight="700" fill="#153B78" text-anchor="middle">PNP (소스) — 현재 설계</text>
+    <text x="615" y="24" font-size="14" font-weight="700" fill="#153B78" text-anchor="middle">NPN (싱크)</text>
+    <line x1="410" y1="12" x2="410" y2="218" stroke="#d5dbe4"/>
+    <!-- PNP -->
+    <rect x="22" y="66" width="70" height="30" rx="6" fill="#c8372d"/><text x="57" y="86" font-size="13" fill="#fff" text-anchor="middle" font-weight="700">+24V</text>
+    <line x1="92" y1="81" x2="128" y2="81" stroke="#c8372d" stroke-width="2.5"/>
+    <line x1="128" y1="81" x2="148" y2="81" stroke="#333" stroke-width="2"/><line x1="148" y1="81" x2="174" y2="69" stroke="#333" stroke-width="2"/><line x1="174" y1="81" x2="190" y2="81" stroke="#333" stroke-width="2"/>
+    <text x="160" y="60" font-size="12" fill="#5b6676" text-anchor="middle">버튼</text>
+    <line x1="190" y1="81" x2="270" y2="81" stroke="#1F4E9C" stroke-width="2.5"/>
+    <text x="230" y="73" font-size="11.5" fill="#1F4E9C" text-anchor="middle">→ 전류</text>
+    <rect x="270" y="50" width="120" height="120" rx="10" fill="#fff" stroke="#9aa4b2"/>
+    <text x="330" y="70" font-size="12" font-weight="700" fill="#1b2430" text-anchor="middle">챔버 DI 모듈</text>
+    <text x="300" y="86" font-size="12" fill="#1b2430">DI</text><rect x="314" y="96" width="32" height="18" rx="3" fill="#E3ECFA" stroke="#1F4E9C"/><text x="330" y="109" font-size="10" fill="#1F4E9C" text-anchor="middle">입력</text>
+    <line x1="330" y1="114" x2="330" y2="150" stroke="#6b7480" stroke-width="2"/>
+    <text x="300" y="164" font-size="12" fill="#1b2430">COM = 0V</text>
+    <text x="205" y="205" font-size="12.5" fill="#1b2430" text-anchor="middle">누르면 DI에 <tspan font-weight="700" fill="#c8372d">+24V</tspan>가 들어가 ON</text>
+    <!-- NPN -->
+    <rect x="432" y="66" width="70" height="30" rx="6" fill="#6b7480"/><text x="467" y="86" font-size="13" fill="#fff" text-anchor="middle" font-weight="700">0V</text>
+    <line x1="502" y1="81" x2="538" y2="81" stroke="#6b7480" stroke-width="2.5"/>
+    <line x1="538" y1="81" x2="558" y2="81" stroke="#333" stroke-width="2"/><line x1="558" y1="81" x2="584" y2="69" stroke="#333" stroke-width="2"/><line x1="584" y1="81" x2="600" y2="81" stroke="#333" stroke-width="2"/>
+    <text x="570" y="60" font-size="12" fill="#5b6676" text-anchor="middle">버튼</text>
+    <line x1="600" y1="81" x2="680" y2="81" stroke="#1F4E9C" stroke-width="2.5"/>
+    <text x="640" y="73" font-size="11.5" fill="#1F4E9C" text-anchor="middle">← 전류</text>
+    <rect x="680" y="50" width="120" height="120" rx="10" fill="#fff" stroke="#9aa4b2"/>
+    <text x="740" y="70" font-size="12" font-weight="700" fill="#1b2430" text-anchor="middle">챔버 DI 모듈</text>
+    <text x="710" y="86" font-size="12" fill="#1b2430">DI</text><rect x="724" y="96" width="32" height="18" rx="3" fill="#E3ECFA" stroke="#1F4E9C"/><text x="740" y="109" font-size="10" fill="#1F4E9C" text-anchor="middle">입력</text>
+    <line x1="740" y1="114" x2="740" y2="150" stroke="#c8372d" stroke-width="2"/>
+    <text x="700" y="164" font-size="12" fill="#1b2430">COM = +24V</text>
+    <text x="615" y="205" font-size="12.5" fill="#1b2430" text-anchor="middle">누르면 DI가 <tspan font-weight="700">0V</tspan>로 끌려 내려가 ON</text>
+  </svg>
+  <h5>비교</h5>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>구분</th><th>PNP (소스)</th><th>NPN (싱크)</th></tr></thead><tbody>
+    <tr><td>ON일 때 신호선</td><td><b>+24V</b></td><td><b>0V</b></td></tr>
+    <tr><td>DI 모듈 COM</td><td>0V</td><td>+24V</td></tr>
+    <tr><td>DO가 하는 일</td><td>부하(램프) +쪽에 +24V를 내보냄</td><td>부하 −쪽을 0V로 끌어당김</td></tr>
+    <tr><td>많이 쓰는 곳</td><td>유럽 장비, 국내 최근 장비 대부분</td><td>일본 장비(미쓰비시 등), 오래된 장비</td></tr>
+  </tbody></table></div>
+  <h5>이 판넬에서 바뀌는 것</h5>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>항목</th><th>PNP (현재 설계)</th><th>NPN이면</th></tr></thead><tbody>
+    <tr><td>버튼 · EMO OK 공통 (n07 · n09 · n11 · n13)</td><td>PDn+ (+24V, 적색)</td><td>PDn− (0V, 백색)</td></tr>
+    <tr><td>램프 공통 (n16 · n18 · n20)</td><td>PDn− (0V, 백색)</td><td>PDn+ (+24V, 적색)</td></tr>
+    <tr><td>Xn 단자 배열 · 챔버 쪽 결선</td><td colspan="2">같음</td></tr>
+    <tr><td>부품</td><td colspan="2">같음 (버튼 · 릴레이 접점은 방향과 무관)</td></tr>
+  </tbody></table></div>
+  <div class="tip"><b>주의</b> 방식이 틀리면 고장이 나지는 않지만 <b>신호가 아예 들어오지 않습니다</b>. DI COM과 판넬 공통선이 같은 전위가 되어 전류가 흐르지 않기 때문입니다. 모델명만 받으면 데이터시트로 BCT가 확인할 수 있습니다.</div>
+</template>
+
+<!-- Deep Dive 2 : STOP / EMO logic -->
+<template id="dd-logic" data-title="STOP · EMO 신호 논리 — 왜 평상시 ON인가">
+  <h5>a접점과 b접점</h5>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>구분</th><th>평소 (안 누름)</th><th>눌렀을 때</th><th>이 판넬</th></tr></thead><tbody>
+    <tr><td><b>a접점</b> (NO, 평상시 열림)</td><td>열림 → DI OFF</td><td>닫힘 → DI ON</td><td>RUN · RESET</td></tr>
+    <tr><td><b>b접점</b> (NC, 평상시 닫힘)</td><td>닫힘 → DI ON</td><td>열림 → DI OFF</td><td>STOP · EMO</td></tr>
+  </tbody></table></div>
+  <p>KDX 버튼은 a · b 접점을 하나씩 갖고 있어(1a1b) 어느 쪽으로든 배선할 수 있습니다.</p>
+  <h5>왜 STOP · EMO는 b접점(평상시 ON)인가 — 페일세이프</h5>
+  <p>멈추는 신호는 <b>“신호가 사라지면 멈춤”</b>으로 만드는 것이 업계 관행입니다. 고장이 나도 안전한 쪽으로 동작하기 때문입니다.</p>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>상황</th><th>a접점이면 (누르면 ON)</th><th>b접점이면 (평상시 ON)</th></tr></thead><tbody>
+    <tr><td>평소</td><td>OFF</td><td>ON</td></tr>
+    <tr><td>STOP · EMO를 누름</td><td>ON → 정지</td><td>OFF → 정지</td></tr>
+    <tr><td><b>전선이 끊기거나 단자가 빠짐</b></td><td style="color:var(--warn)"><b>계속 OFF → 눌러도 신호가 안 감 (위험)</b></td><td style="color:var(--ok)"><b>OFF → 바로 정지 (안전)</b></td></tr>
+    <tr><td>판넬 24V 차단기가 내려감</td><td>정지 신호를 보낼 수 없음</td><td>OFF → 정지</td></tr>
+  </tbody></table></div>
+  <p>RUN · RESET은 잘못 들어가면 안 되는 “시작” 신호라서 a접점(누르면 ON)이 맞습니다.</p>
+  <h5>EMO OK 신호가 만들어지는 순서</h5>
+  <svg viewBox="0 0 820 120">
+    <g font-size="13" text-anchor="middle">
+      <rect x="10" y="30" width="150" height="56" rx="10" fill="#fff" stroke="#9aa4b2"/><text x="85" y="54" font-weight="700" fill="#1b2430">EMOn b접점</text><text x="85" y="73" font-size="11.5" fill="#5b6676">평소 닫힘</text>
+      <rect x="215" y="30" width="150" height="56" rx="10" fill="#fff" stroke="#9aa4b2"/><text x="290" y="54" font-weight="700" fill="#1b2430">릴레이 Kn 코일</text><text x="290" y="73" font-size="11.5" fill="#5b6676">평소 ON (붙어 있음)</text>
+      <rect x="420" y="6" width="180" height="48" rx="10" fill="#E3ECFA" stroke="#1F4E9C"/><text x="510" y="27" font-weight="700" fill="#153B78">접점1 → Xn.6</text><text x="510" y="44" font-size="11.5" fill="#1F4E9C">EMO OK (DI) = ON</text>
+      <rect x="420" y="64" width="180" height="48" rx="10" fill="#fff4d6" stroke="#c98a2b"/><text x="510" y="85" font-weight="700" fill="#8a6100">접점2 → Xn.10-11</text><text x="510" y="102" font-size="11.5" fill="#8a6100">인터록 = 닫힘</text>
+      <text x="715" y="54" font-size="12" fill="#b42318" font-weight="700">EMO 누름 · 단선</text><text x="715" y="72" font-size="12" fill="#b42318">· 전원 차단</text><text x="715" y="90" font-size="12" fill="#b42318">→ 모두 OFF / 개방</text>
+    </g>
+    <g stroke="#1F4E9C" stroke-width="2" fill="none"><line x1="160" y1="58" x2="210" y2="58"/><line x1="365" y1="58" x2="392" y2="58"/><line x1="392" y1="30" x2="392" y2="88"/><line x1="392" y1="30" x2="415" y2="30"/><line x1="392" y1="88" x2="415" y2="88"/></g>
+  </svg>
+  <p>그래서 이름도 “EMO 눌림”이 아니라 <b>“EMO OK”(정상)</b>입니다. ON이 정상, OFF가 비상입니다.</p>
+  <h5>챔버 PLC가 반대 논리(누르면 ON)로 되어 있다면</h5>
+  <ul class="clean">
+    <li><b>권장</b> — 고객이 PLC 로직을 평상시 ON 기준으로 바꿈 (안전 측면에서 유리)</li>
+    <li><b>대안</b> — BCT가 STOP을 a접점으로, EMO OK를 릴레이 NC 접점으로 배선 변경. 부품은 같지만 단선 시 정지 신호가 가지 않는다는 점을 고객에게 알림</li>
+  </ul>
+  <div class="tip"><b>정리</b> 판넬은 어느 방식으로든 만들 수 있습니다. 고객 PLC가 받는 논리와 맞추는 것이 핵심이고, BCT 권장은 STOP · EMO 모두 평상시 ON입니다.</div>
+</template>
+
+<!-- Deep Dive 4 : panel colour -->
+<template id="dd-color" data-title="전면 판넬 색상 — RAL 7032 · 1013 · 7035">
+  <h5>왜 판금 제작 + 도장인가</h5>
+  <p>19" 랙용 블랭크 패널은 상용품이 있지만 색상이 <b>블랙 또는 RAL 7035(라이트 그레이)</b> 위주이고, 베이지 계열 12U 제품은 찾기 어렵습니다. 어차피 EMO · 버튼 타공과 후면 스터드 압입이 필요하므로, SPCC 2.0t 판금으로 만들고 원하는 색으로 분체도장하는 쪽이 공정상 같고 색 선택이 자유롭습니다.</p>
+  <h5>세 후보</h5>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>색상</th><th>이름</th><th>느낌</th><th>비고</th></tr></thead><tbody>
+    <tr><td><span class="cw" style="background:#B8B799;width:28px;height:16px"></span>RAL 7032</td><td>페블 그레이 (Pebble grey)</td><td>회색빛이 도는 베이지 · 차분함</td><td>제어반 · 산업용 함체에서 많이 쓰는 색</td></tr>
+    <tr><td><span class="cw" style="background:#E3D9C6;width:28px;height:16px"></span>RAL 1013</td><td>오이스터 화이트 (Oyster white)</td><td>밝은 아이보리 · 깨끗한 느낌</td><td>밝아서 노란 명판과 대비가 약간 낮음</td></tr>
+    <tr><td><span class="cw" style="background:#CBD0CC;width:28px;height:16px"></span>RAL 7035</td><td>라이트 그레이 (Light grey)</td><td>중립 회색 · 서버랙 · 제어반 표준색</td><td>상용 19" 블랭크 패널에도 있는 색 · 도장 수급이 가장 쉬움</td></tr>
+  </tbody></table></div>
+  <h5>정하실 것</h5>
+  <ul class="clean">
+    <li>세 색 중 하나, 또는 기존 판넬의 색상 번호(알고 계시면 그 색으로 맞춤)</li>
+    <li>표면: 일반(반광) · 무광 · 주름(엠보) — 기존 판넬처럼 결이 있는 느낌을 원하시면 주름 도장</li>
+  </ul>
+  <div class="tip"><b>참고</b> 화면에 보이는 색은 근사치입니다. 실제 색은 RAL 색상표나 도장 시편으로 확인하는 것이 가장 정확합니다. ‘이미지 뷰’ 탭에서 세 색을 바꿔 가며 볼 수 있고, 3D 모델에도 같은 색이 적용됩니다.</div>
+</template>
+
+<!-- Deep Dive 3 : interlock contact -->
+<template id="dd-ilk" data-title="EMO 인터록 접점 — PLC를 거치지 않는 비상정지">
+  <h5>무엇인가</h5>
+  <p>릴레이 Kn의 남는 접점을 <b>전압이 걸리지 않은 상태(무전압 · dry contact)</b>로 단자 Xn.10–11에 꺼내 둔 것입니다. 판넬 EMO를 누르면 이 접점이 <b>열립니다</b>. 챔버의 비상정지 회로에 직렬로 넣으면, PLC 프로그램과 상관없이 하드웨어로 챔버를 멈출 수 있습니다.</p>
+  <svg viewBox="0 0 820 150">
+    <text x="20" y="22" font-size="13" font-weight="700" fill="#153B78">챔버 비상정지 회로 (예시)</text>
+    <g stroke="#1b2430" stroke-width="2" fill="none">
+      <line x1="40" y1="80" x2="120" y2="80"/><line x1="200" y1="80" x2="300" y2="80"/><line x1="520" y1="80" x2="620" y2="80"/><line x1="700" y1="80" x2="780" y2="80"/>
+    </g>
+    <text x="40" y="70" font-size="12" fill="#5b6676">전원</text>
+    <rect x="120" y="58" width="80" height="44" rx="8" fill="#fff" stroke="#9aa4b2"/><text x="160" y="78" font-size="12" text-anchor="middle" fill="#1b2430">챔버 자체</text><text x="160" y="94" font-size="12" text-anchor="middle" fill="#1b2430">EMO</text>
+    <rect x="300" y="48" width="220" height="64" rx="10" fill="#fff4d6" stroke="#c98a2b"/>
+    <text x="410" y="70" font-size="12.5" font-weight="700" text-anchor="middle" fill="#8a6100">판넬 Xn.10 ─ Kn 접점2 ─ Xn.11</text>
+    <text x="410" y="90" font-size="11.5" text-anchor="middle" fill="#8a6100">평소 닫힘 · 판넬 EMO 누르면 열림</text>
+    <rect x="620" y="58" width="80" height="44" rx="8" fill="#fff" stroke="#9aa4b2"/><text x="660" y="78" font-size="12" text-anchor="middle" fill="#1b2430">안전 릴레이</text><text x="660" y="94" font-size="12" text-anchor="middle" fill="#1b2430">/ MC 코일</text>
+    <text x="780" y="70" font-size="12" fill="#5b6676" text-anchor="end">복귀</text>
+    <text x="410" y="138" font-size="12.5" text-anchor="middle" fill="#1b2430">직렬로 연결 → 어느 EMO를 눌러도 회로가 끊겨 챔버 정지</text>
+  </svg>
+  <h5>EMO OK(DI)와 인터록 접점의 차이</h5>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>구분</th><th>EMO OK (Xn.6, DI)</th><th>인터록 접점 (Xn.10–11)</th></tr></thead><tbody>
+    <tr><td>전달 경로</td><td>DI 입력 → PLC 프로그램이 판단해 정지</td><td>챔버 비상정지 회로를 직접 끊음</td></tr>
+    <tr><td>PLC 의존</td><td>있음 (프로그램 · 스캔 · PLC 상태에 좌우)</td><td>없음 (하드웨어)</td></tr>
+    <tr><td>용도</td><td>상태 표시 · 알람 · 시퀀스 정지</td><td>안전 회로 · 확실한 정지</td></tr>
+  </tbody></table></div>
+  <h5>사양</h5>
+  <ul class="clean">
+    <li>채널당 <b>1쌍 (접점2, Xn.10–11)</b> + 예비 <b>1쌍 (접점3, Xn.12–13)</b> · 접점4는 미사용</li>
+    <li>MY-4SL 접점 정격 <b>3 A / 28 VDC · 240 VAC</b> — 챔버 비상정지 회로의 전압 · 전류가 이 안에 드는지 확인</li>
+    <li>판넬 전원(챔버 24V)이 끊겨도 릴레이가 떨어져 접점이 열림 → 안전 쪽으로 동작</li>
+  </ul>
+  <div class="tip"><b>쓰지 않는 경우</b> 단자는 그대로 두고 결선만 하지 않습니다. 나중에 필요하면 Xn.10–11에 바로 연결하면 됩니다. 챔버에 외부 비상정지 입력이 있는지, 몇 쌍이 필요한지만 알려 주시면 됩니다.</div>
+</template>
+
+<script>
+const DATA = {"mode": "customer", "rev": "Rev.A", "date": "2026-11-11", "terminals": [["1", "+24V IN", "전원", "챔버 n +24VDC", "CBn.1 (서킷 프로텍터 입력)"], ["2", "0V IN", "전원", "챔버 n 0V", "PDn− (0V 분배)"], ["3", "RUN", "DI", "DI (RUN 누름 = ON)", "RUNn 탭 1-4 (a접점)"], ["4", "STOP", "DI", "DI (정상 ON, 누름 = OFF)", "STPn 탭 2-3 (b접점)"], ["5", "RESET", "DI", "DI (RESET 누름 = ON)", "RSTn 탭 1-4 (a접점)"], ["6", "EMO OK", "DI", "DI (정상 ON, EMO = OFF)", "Kn 접점1 NO"], ["7", "RUN LAMP", "DO", "DO → 램프 + (32 mA)", "RUNn X1(+)"], ["8", "STOP LAMP", "DO", "DO → 램프 + (32 mA)", "STPn X1(+)"], ["9", "RESET LAMP", "DO", "DO → 램프 + (32 mA)", "RSTn X1(+)"], ["10", "EMO ILK-1 COM", "인터록", "챔버 EMO 회로 (무전압)", "Kn 접점2 COM"], ["11", "EMO ILK-1 NO", "인터록", "챔버 EMO 회로 (무전압)", "Kn 접점2 NO"], ["12", "EMO ILK-2 COM", "예비", "예비 무전압 접점", "Kn 접점3 COM"], ["13", "EMO ILK-2 NO", "예비", "예비 무전압 접점", "Kn 접점3 NO"], ["PE", "PE / 실드", "접지", "케이블 실드·PE (해당 시)", "DIN 레일 → 판넬 접지"]], "wires": [["01", "Xn.1", "CBn.1", "적", "페룰 AI 0,5-8", "링 RV1.25-4", 0.15], ["02", "CBn.2", "PDn+ 입력", "적", "링 RV1.25-4", "페룰 AI 0,5-8", 0.25], ["03", "Xn.2", "PDn− 입력", "백", "페룰 AI 0,5-8", "페룰 AI 0,5-8", 0.25], ["04", "PDn+", "EMOn.11", "적", "페룰 AI 0,5-8", "링 RV1.25-3.5", 0.45], ["05", "EMOn.12", "Kn.14 (코일+)", "청", "링 RV1.25-3.5", "링 RV1.25-3.5", 0.4], ["06", "PDn−", "Kn.13 (코일−)", "백", "페룰 AI 0,5-8", "링 RV1.25-3.5", 0.2], ["07", "PDn+", "RUNn.1", "적", "페룰 AI 0,5-8", "리셉터클 #110", 0.4], ["08", "RUNn.4", "Xn.3", "청", "리셉터클 #110", "페룰 AI 0,5-8", 0.45], ["09", "PDn+", "STPn.2", "적", "페룰 AI 0,5-8", "리셉터클 #110", 0.35], ["10", "STPn.3", "Xn.4", "청", "리셉터클 #110", "페룰 AI 0,5-8", 0.4], ["11", "PDn+", "RSTn.1", "적", "페룰 AI 0,5-8", "리셉터클 #110", 0.3], ["12", "RSTn.4", "Xn.5", "청", "리셉터클 #110", "페룰 AI 0,5-8", 0.35], ["13", "PDn+", "Kn.9 (접점1 COM)", "적", "페룰 AI 0,5-8", "링 RV1.25-3.5", 0.2], ["14", "Kn.5 (접점1 NO)", "Xn.6", "청", "링 RV1.25-3.5", "페룰 AI 0,5-8", 0.25], ["15", "Xn.7", "RUNn.X1", "청", "페룰 AI 0,5-8", "리셉터클 #110", 0.45], ["16", "RUNn.X2", "PDn−", "백", "리셉터클 #110", "페룰 AI 0,5-8", 0.4], ["17", "Xn.8", "STPn.X1", "청", "페룰 AI 0,5-8", "리셉터클 #110", 0.4], ["18", "STPn.X2", "PDn−", "백", "리셉터클 #110", "페룰 AI 0,5-8", 0.35], ["19", "Xn.9", "RSTn.X1", "청", "페룰 AI 0,5-8", "리셉터클 #110", 0.35], ["20", "RSTn.X2", "PDn−", "백", "리셉터클 #110", "페룰 AI 0,5-8", 0.3], ["21", "Kn.10 (접점2 COM)", "Xn.10", "청", "링 RV1.25-3.5", "페룰 AI 0,5-8", 0.25], ["22", "Kn.6 (접점2 NO)", "Xn.11", "청", "링 RV1.25-3.5", "페룰 AI 0,5-8", 0.25], ["23", "Kn.11 (접점3 COM)", "Xn.12", "청", "링 RV1.25-3.5", "페룰 AI 0,5-8", 0.25], ["24", "Kn.7 (접점3 NO)", "Xn.13", "청", "링 RV1.25-3.5", "페룰 AI 0,5-8", 0.25]], "bom": [{"cat": "A", "name": "비상정지 스위치", "spec": "KGE-J4R1R · Ø25 매입형 Al, 푸시록 턴리셋, 1a1b, 적", "mfr": "KG오토", "q": 4, "sp": 0, "unit": "EA", "src": "", "note": "BCT 구매", "basis": "", "flag": null}, {"cat": "A", "name": "비상정지 가드", "spec": "KG-EMS-25 · Ø25 매입형용, 높이 84, 하부 패드 0.4t", "mfr": "KG오토", "q": 4, "sp": 0, "unit": "EA", "src": "", "note": "", "basis": "", "flag": null}, {"cat": "A", "name": "조광형 누름버튼 (녹) — RUN", "spec": "KDX-GMD21G · Ø16 원형 고급 Al, 자기복귀, 12/24VDC LED, 1a1b", "mfr": "KG오토", "q": 4, "sp": 0, "unit": "EA", "src": "", "note": "", "basis": "", "flag": null}, {"cat": "A", "name": "조광형 누름버튼 (적) — STOP · RESET", "spec": "KDX-GMD21R · Ø16 원형 고급 Al, 자기복귀, 12/24VDC LED 32 mA, 1a1b", "mfr": "KG오토", "q": 8, "sp": 0, "unit": "EA", "src": "", "note": "", "basis": "", "flag": null}, {"cat": "A", "name": "파워 릴레이", "spec": "MY-4SL DC24V · 4C, 접점 3 A / 28 VDC, 코일 0.9 W, LED", "mfr": "성은전자", "q": 4, "sp": 0, "unit": "EA", "src": "", "note": "CH당 1개 · EMO 상태 · 인터록용", "basis": "", "flag": null}, {"cat": "A", "name": "릴레이 소켓", "spec": "MY4 · DIN 레일형, 14핀, 30 × 62", "mfr": "성은전자", "q": 4, "sp": 0, "unit": "EA", "src": "", "note": "", "basis": "", "flag": null}, {"cat": "A", "name": "서킷 프로텍터", "spec": "CP30-BA 1P 1-M 5A · 직렬형·중속형, M4 나사단자, 1P 폭 12", "mfr": "Mitsubishi", "q": 4, "sp": 0, "unit": "EA", "src": "", "note": "CH별 1개 (고객 선정 사양)", "basis": "", "flag": null}, {"cat": "A", "name": "분배 블록 +24V", "spec": "PTFIX 6/12X2,5 RD · 3273356 · 1전위 13점, 41 × 28.6", "mfr": "Phoenix Contact", "q": 4, "sp": 0, "unit": "EA", "src": "", "note": "", "basis": "", "flag": null}, {"cat": "A", "name": "분배 블록 0V", "spec": "PTFIX 6/12X2,5 BU · 3273354 · 1전위 13점", "mfr": "Phoenix Contact", "q": 4, "sp": 0, "unit": "EA", "src": "", "note": "", "basis": "", "flag": null}, {"cat": "A", "name": "PTFIX DIN 어댑터", "spec": "PTFIX-NS35 · 3274054 · 레일 위 폭 28.6", "mfr": "Phoenix Contact", "q": 8, "sp": 0, "unit": "EA", "src": "", "note": "", "basis": "", "flag": null}, {"cat": "B", "name": "단자대", "spec": "PT 2,5 · 3209510 · 회색, 폭 5.2, 24 A", "mfr": "Phoenix Contact", "q": 52, "sp": 0, "unit": "EA", "src": "", "note": "", "basis": "", "flag": null}, {"cat": "B", "name": "PE 단자대", "spec": "PT 2,5-PE · 3209536", "mfr": "Phoenix Contact", "q": 4, "sp": 0, "unit": "EA", "src": "", "note": "", "basis": "", "flag": null}, {"cat": "B", "name": "엔드 커버", "spec": "D-ST 2,5 · 3030417 · 두께 2.2", "mfr": "Phoenix Contact", "q": 4, "sp": 0, "unit": "EA", "src": "", "note": "", "basis": "", "flag": null}, {"cat": "B", "name": "엔드 브래킷", "spec": "CLIPFIX 35 · 3022218", "mfr": "Phoenix Contact", "q": 4, "sp": 0, "unit": "EA", "src": "", "note": "", "basis": "", "flag": null}, {"cat": "B", "name": "단자 마커", "spec": "ZB 5 :UNBEDRUCKT · 1050004 · 무지, 10개/스트립", "mfr": "Phoenix Contact", "q": 6, "sp": 0, "unit": "EA", "src": "", "note": "", "basis": "", "flag": null}, {"cat": "B", "name": "DIN 레일", "spec": "NS 35/7,5 PERF 2000MM · 0801733", "mfr": "Phoenix Contact", "q": 1, "sp": 0, "unit": "EA", "src": "", "note": "", "basis": "", "flag": null}, {"cat": "C", "name": "전선 — 신호", "spec": "UL1007 AWG20 청색", "mfr": "—", "q": 16.2, "sp": 0, "unit": "m", "src": "", "note": "", "basis": "", "flag": null}, {"cat": "C", "name": "전선 — +24V", "spec": "UL1007 AWG20 적색", "mfr": "—", "q": 8.4, "sp": 0, "unit": "m", "src": "", "note": "", "basis": "", "flag": null}, {"cat": "C", "name": "전선 — 0V", "spec": "UL1007 AWG20 백색", "mfr": "—", "q": 6.0, "sp": 0, "unit": "m", "src": "", "note": "", "basis": "", "flag": null}, {"cat": "C", "name": "접지선", "spec": "UL1015 AWG14 녹/황", "mfr": "—", "q": 1, "sp": 0, "unit": "m", "src": "", "note": "", "basis": "", "flag": null}, {"cat": "C", "name": "페룰", "spec": "AI 0,5-8 WH · 3200014 · 0.5 mm² (AWG20)", "mfr": "Phoenix Contact", "q": 96, "sp": 0, "unit": "EA", "src": "", "note": "", "basis": "", "flag": null}, {"cat": "C", "name": "절연 링단자 M3.5", "spec": "RV1.25-3.5", "mfr": "—", "q": 40, "sp": 0, "unit": "EA", "src": "", "note": "", "basis": "", "flag": null}, {"cat": "C", "name": "절연 리셉터클 #110", "spec": "2.8 × 0.5 mm 탭용, 0.5~1.25 mm² · 완전절연형 (예: JST FVDDF1.25-110B-5 또는 동등품)", "mfr": "—", "q": 48, "sp": 0, "unit": "EA", "src": "", "note": "", "basis": "", "flag": null}, {"cat": "C", "name": "절연 링단자 M4", "spec": "RV1.25-4", "mfr": "—", "q": 8, "sp": 0, "unit": "EA", "src": "", "note": "", "basis": "", "flag": null}, {"cat": "C", "name": "절연 링단자 — 접지", "spec": "RV2-5 (AWG14)", "mfr": "—", "q": 2, "sp": 0, "unit": "EA", "src": "", "note": "", "basis": "", "flag": null}, {"cat": "C", "name": "마킹 튜브", "spec": "Ø2.5 (AWG20용), 전선 번호 인쇄", "mfr": "—", "q": 192, "sp": 0, "unit": "EA", "src": "", "note": "", "basis": "", "flag": null}, {"cat": "C", "name": "케이블 타이 100 mm", "spec": "100 mm", "mfr": "—", "q": 100, "sp": 0, "unit": "EA", "src": "", "note": "", "basis": "", "flag": null}, {"cat": "C", "name": "케이블 타이 200 mm", "spec": "200 mm", "mfr": "—", "q": 20, "sp": 0, "unit": "EA", "src": "", "note": "", "basis": "", "flag": null}, {"cat": "C", "name": "타이 마운트", "spec": "나사 고정식 M4", "mfr": "—", "q": 8, "sp": 0, "unit": "EA", "src": "", "note": "", "basis": "", "flag": null}, {"cat": "D", "name": "랙 판넬", "spec": "19\" 12U · 482.6 × 532.6 · SPCC 2.0t 분체도장 · Ø25 × 4 · Ø16 × 12 · M6 슬롯 7 × 10 × 6", "mfr": "제작", "q": 1, "sp": 0, "unit": "EA", "src": "", "note": "도장 색상 고객 선택 (RAL 7032 / 1013 / 7035)", "basis": "", "flag": null}, {"cat": "D", "name": "PEM 스터드 M4", "spec": "FH-M4-12", "mfr": "—", "q": 20, "sp": 0, "unit": "EA", "src": "", "note": "", "basis": "", "flag": null}, {"cat": "D", "name": "플랜지 너트 M4", "spec": "M4", "mfr": "—", "q": 20, "sp": 0, "unit": "EA", "src": "", "note": "", "basis": "", "flag": null}, {"cat": "D", "name": "접지 스터드 세트", "spec": "FH-M5-15 + M5 너트 2 + 톱니와셔 2 + 접지 라벨", "mfr": "—", "q": 1, "sp": 0, "unit": "SET", "src": "", "note": "", "basis": "", "flag": null}, {"cat": "D", "name": "배선 덕트", "spec": "25W × 40H 회색, 커버 포함, 2 m", "mfr": "—", "q": 1, "sp": 0, "unit": "EA", "src": "", "note": "", "basis": "", "flag": null}, {"cat": "D", "name": "랙 고정 볼트", "spec": "M6 × 16 볼트 + 와셔 + M6 케이지너트 (9.5 각홀)", "mfr": "—", "q": 6, "sp": 0, "unit": "SET", "src": "", "note": "", "basis": "", "flag": null}, {"cat": "E", "name": "전면 명판", "spec": "노란 라벨 · CH1~CH4, RUN · STOP · RESET", "mfr": "—", "q": 16, "sp": 0, "unit": "EA", "src": "", "note": "", "basis": "", "flag": null}, {"cat": "E", "name": "후면 기기 라벨", "spec": "CB1~4 · K1~4 · PD1~4 ± · X1~X4", "mfr": "—", "q": 1, "sp": 0, "unit": "식", "src": "", "note": "", "basis": "", "flag": null}], "cats": {"A": "전장 부품", "B": "단자대 · DIN 레일", "C": "배선 자재", "D": "기구 · 판금", "E": "표시"}, "len": {"청": 16.2, "적": 8.4, "백": 6.0}, "ends": {"페룰 AI 0,5-8": 96, "링 RV1.25-4": 8, "링 RV1.25-3.5": 40, "리셉터클 #110": 48}, "n_wires": 96, "basis": [["제작", "신규 판넬 1대 · 기존 판넬과 같은 랙에 장착 (아래쪽 · 후면 공간 여유)", "확정"], ["배치", "세로 4열 (CH1~CH4) · 열마다 EMO + RUN · STOP · RESET", "확정"], ["SW4 · SW5", "미사용 — 타공하지 않음", "확정"], ["전원", "챔버별 24VDC 4회선 · CH마다 CP30-BA 5A 1개 (고객 선정 사양, 채널 간 완전 분리)", "확정"], ["부품 조달", "전 부품 BCT 구매 · 제작 (EMO 스위치 포함, 사급 없음)", "확정"], ["명판", "CH1~CH4 · RUN · STOP · RESET (기존과 같은 노란 라벨) — BCT 결정", "확정"], ["판넬 색상", "분체도장 — RAL 7032 (페블 그레이) / RAL 1013 (오이스터 화이트) / RAL 7035 (라이트 그레이) 중 고객 선택 · 판금 제작", "미정"], ["릴레이", "CH당 MY-4SL 1개 · EMO b접점으로 코일 유지 · 접점으로 EMO OK DI + 무전압 인터록", "확정"], ["전선", "AWG20 · 신호 청 · +24V 적 · 0V 백 · 전 가닥 마킹 튜브", "확정"], ["DI · DO 방식", "PNP(소스) — 스위치가 +24V를 DI로, DO가 램프 +를 구동", "가정"], ["STOP 접점", "b접점 (정상 ON, 누름 · 단선 시 OFF)", "가정"], ["판넬", "19\" 랙 판넬 12U (482.6 × 532.6) · SPCC 2.0t 분체도장 · 덕트 2 · DIN 레일 2단", "확정"], ["챔버 연결", "X1~X4 단자대 직결 · 챔버 케이블은 고객 범위", "가정"], ["랙 · 판넬 폭", "넥시 NX-SH1200 (22U, 케이지너트) → EIA 19\": 판넬 폭 482.6 · 홀 피치 465.1 · 12U 532.6 · M6 슬롯 6개", "확정"]], "open": [{"who": "고객", "t": "DI · DO 방식 (PNP / NPN)", "dd": "pnp", "q": "챔버 DIO 모듈의 DI·DO가 PNP(소스)인가요, NPN(싱크)인가요? 모르시면 DIO 모듈 모델명을 알려 주세요. 4개 챔버 모두 같은 모듈인지도 알려 주시면 감사하겠습니다.", "note": "본 설계는 PNP 기준 · NPN이면 판넬 내부 공통선 7가닥(n07·n09·n11·n13 / n16·n18·n20)만 바뀌고 단자 배열 · 부품은 같음"}, {"who": "고객", "t": "STOP · EMO 신호 논리", "dd": "logic", "q": "STOP 버튼과 비상정지(EMO) 신호는 안전을 위해 평상시 ON, 누르거나 선이 끊기면 OFF가 되도록 배선할 계획입니다. 챔버 PLC에서 이 방식으로 받아도 될까요? 기존 장비가 반대(누르면 ON)로 되어 있다면 알려 주세요.", "note": "STOP = 버튼 b접점, EMO OK = 릴레이 Kn 접점1(NO). 반대 논리가 필요하면 배선만 바꾸면 되고 부품은 같음"}, {"who": "고객", "t": "EMO 인터록 접점 사용", "dd": "ilk", "q": "판넬 EMO를 누르면 PLC 신호(EMO OK)와 별도로, 챔버의 비상정지 회로를 직접 끊을 수 있는 무전압 접점(Xn.10–11)을 채널마다 1쌍 드립니다. 챔버에 외부 비상정지 입력(인터록 루프)이 있어 이 접점을 연결하실 건가요? 예비 접점 1쌍(Xn.12–13)이 더 필요하신지도 알려 주세요.", "note": "Kn 접점2 · 접점3, 정격 3 A / 28 VDC. 쓰지 않으면 단자만 두고 미결선"}, {"who": "고객", "t": "전면 판넬 색상", "dd": "color", "q": "전면 판넬 도장 색상으로 RAL 7032(페블 그레이), RAL 1013(오이스터 화이트), RAL 7035(라이트 그레이) 세 가지를 준비했습니다. 어느 색이 좋으실까요? 문서의 ‘이미지 뷰’ 탭에서 세 색을 비교해 보실 수 있습니다. 기존 판넬의 색상 번호를 알고 계시면 그 색으로 맞추겠습니다.", "note": "판금 제작 + 분체도장 · 화면 색은 근사치라 실제 색은 RAL 색상표 · 도장 시편으로 확인"}], "decided": [{"t": "장착 랙 — 넥시 NX-SH1200", "d": "22U · H1200 × W600 × D1000 · 케이지너트 타입 → EIA 19\" 판넬 482.6 / 홀 피치 465.1 (2026-11-11 고객 회신 · 표준 치수 적용, 현장 실측 생략)"}, {"t": "판넬 높이 — 12U", "d": "덕트 2 · DIN 레일 2단 구성 유지, 11U 압축안 · 6U 분리안 미채택 (2026-11-11)"}, {"t": "배치 — B안 세로 4열", "d": "2026-11-06 고객 협의"}, {"t": "SW4 · SW5 미사용", "d": "2026-11-06 고객 협의"}, {"t": "장착 위치", "d": "기존 판넬과 같은 랙 · 아래쪽 · 후면 공간 여유 (고객 확인)"}, {"t": "릴레이 접점 핀 번호", "d": "MY-4SL 본체 인쇄로 확인 — COM 9~12 · NO 5~8 · NC 1~4 · 코일 13-14 (결선도와 일치, 2026-11-11)"}, {"t": "KDX 탭 배치 · 램프 극성", "d": "KG오토 자료(서브원 상세) 확인 — a접점 탭 1-4 (바깥 두 개) · b접점 탭 2-3 (안쪽 두 개) · 램프 X1(+) / X2(−) · LED 32 mA → 결선도 · 배선 목록 번호 반영 (2026-11-11)"}, {"t": "KDX 타공 · 피치", "d": "Ø16.0 +0.2 · 연속 가공 최소 세로 30 / 가로 25 → 설계 세로 48 · 열 간격 100으로 만족 · 판넬 1~7 t (SPCC 2.0t OK)"}, {"t": "KDX 버튼 단자 — 2.8 mm 탭 (#110)", "d": "KDX 3D 모델에서 탭 2.8 × 0.5 mm 6개 확인(접점 4 + 램프 2) → 링단자 대신 절연 리셉터클 #110으로 BOM · 배선 목록 변경 (2026-11-11)"}, {"t": "릴레이 소켓 — 성은전자 MY4 · 홀드다운 클립 미사용", "d": "형번 MY4 확인 · 제조처 회신: 릴레이가 소켓에 빠지지 않게 고정되므로 클립 구매 · 장착 불필요 (2026-11-11)"}, {"t": "릴레이 코일 극성 — 13(−) / 14(+)", "d": "확인 완료 · 결선도 가정과 일치 (n05 → Kn.14(+), n06 → Kn.13(−)) (2026-11-11)"}, {"t": "릴레이 코일 정격 — 24VDC", "d": "고객 제공 실물 MY-4SL 라벨 Coil 24VDC 확인 · BOM 형번 MY-4SL DC24V와 동일 (2026-11-11)"}, {"t": "전원 4회선 · CP30 4개", "d": "챔버별 24VDC 독립 공급 (2026-11-11 BCT 결정)"}, {"t": "릴레이 용도", "d": "CH당 1개 · EMO 상태 + 인터록 (2026-11-11 BCT 결정)"}, {"t": "전선 색상", "d": "신호 청 (고객 요청) + 전원 적 · 0V 백 구분 (2026-11-11 BCT 결정)"}, {"t": "추가 부품", "d": "0V 분배 · 인터페이스 단자 · DIN 레일 · 덕트 · 접지 · 소모품 모두 BOM 반영"}, {"t": "부품 조달 — 전량 BCT 구매", "d": "EMO 스위치 포함 모든 부품을 BCT가 구매해 제작 (2026-11-11)"}, {"t": "CP30 정격 — 5A", "d": "고객이 선정해 준 CP30-BA 1P 1-M 5A 그대로 적용 (2026-11-11)"}, {"t": "EMO 가드 — BCT 구매", "d": "KG-EMS-25 × 4 (2026-11-11)"}, {"t": "명판 문구 — BCT 결정", "d": "명판 CH1~CH4 · RUN · STOP · RESET, 기존과 같은 노란 라벨 (2026-11-11)"}, {"t": "전면 판넬 — 판금 제작 + 분체도장", "d": "상용 19\" 블랭크 패널은 블랙 · RAL 7035 그레이 위주이고 베이지는 없음 → SPCC 2.0t 판금 제작 후 베이지 계열 분체도장 (2026-11-11)"}], "refs": []};
+document.getElementById('bRev').textContent=DATA.rev;
+document.getElementById('bDate').textContent=DATA.date;
+document.getElementById('bomRev').textContent=DATA.rev;
+const CUST=DATA.mode==='customer';
+document.getElementById('foot').textContent=`㈜비씨테크 · DIO Control Signal Panel ${DATA.rev} · ${DATA.date} · ${CUST?'고객 검토용':'내부용'}`;
+if(CUST){document.getElementById('bEd').textContent='고객 검토용';document.getElementById('hSub').textContent='신규 1대 · 4챔버 세로 4열 · BOM / 도면 / 3D / 결선 — ㈜비씨테크 · 고객 검토용';document.title='DIO Control Signal Panel — 고객 검토용';}
+/* ---------- tabs ---------- */
+function showTab(t){const b=document.querySelector(`#tabs button[data-t="${t}"]`);if(!b)return;
+  document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('on',x===b));
+  document.querySelectorAll('section.tab').forEach(s=>s.classList.toggle('on',s.id==='t-'+t));
+  if(t==='d3'&&typeof init3D==='function'){if(!threeStarted){threeStarted=true;init3D();}else if(window.__resize3d)window.__resize3d();}}
+document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{showTab(b.dataset.t);history.replaceState(null,'','#'+b.dataset.t);});
+/* ---------- deep dive ---------- */
+const ddDlg=document.getElementById('dd');
+function openDD(k){const t=document.getElementById('dd-'+k);if(!t)return;
+  document.getElementById('ddTitle').textContent=t.dataset.title;
+  const b=document.getElementById('ddBody');b.innerHTML='';b.appendChild(t.content.cloneNode(true));
+  ddDlg.showModal();ddDlg.scrollTop=0;}
+document.getElementById('ddClose').onclick=()=>ddDlg.close();
+ddDlg.addEventListener('click',e=>{if(e.target===ddDlg)ddDlg.close();});
+if(location.hash.startsWith('#dd-')){showTab('op');}else if(location.hash)showTab(location.hash.slice(1));
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+/* ---------- overview ---------- */
+(function(){
+  const nOpen=DATA.open.length, nB=DATA.bom.length, nH=DATA.bom.filter(r=>r.flag==='hs').length;
+  document.getElementById('stats').innerHTML=[
+    ['채널','4<small> CH · 세로 4열</small>'],['IO (4채널)','16<small> DI · </small>12<small> DO</small>'],
+    ['BOM 항목',nB+`<small> 개 · ${nH?'사급 '+nH:'전량 BCT 구매'}</small>`],['확인 필요',nOpen+'<small> 건</small>']
+  ].map(([k,v])=>`<div class="card stat"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('');
+  let h='<thead><tr><th style="width:16%">항목</th><th>내용</th><th style="width:12%">구분</th></tr></thead><tbody>';
+  DATA.basis.forEach(([k,v,t])=>{h+=`<tr><td class="sp" style="color:var(--muted)">${k}</td><td>${v}</td><td>${t==='확정'?'<span class="pill p-hs">확정</span>':t==='가정'?'<span class="pill p-new">BCT 가정</span>':'<span class="pill p-conf">미정</span>'}</td></tr>`;});
+  document.getElementById('basisTbl').innerHTML=h+'</tbody>';
+  document.getElementById('openList').innerHTML=DATA.open.map(o=>`<li><span class="who ${o.who==='고객'?'c':'b'}">${CUST?'확인 요청':o.who}</span><b>${o.t}</b>`+
+    (o.q?`<div class="ask">${o.q}</div>`:`<br>${o.d}`)+
+    (o.note||o.dd?`<div class="askn">${o.note?o.note:''}${o.dd?` <button class="ddbtn" data-dd="${o.dd}">Deep Dive ↗</button>`:''}</div>`:'')+`</li>`).join('');
+  document.querySelectorAll('.ddbtn').forEach(b=>b.onclick=()=>openDD(b.dataset.dd));
+  document.getElementById('doneList').innerHTML=DATA.decided.map(o=>`<li><b>${o.t}</b><br>${o.d}</li>`).join('');
+  const rl=document.getElementById('refList');if(rl)rl.innerHTML=DATA.refs.map(r=>`<li>${r}</li>`).join('');
+})();
+/* ---------- BOM ---------- */
+let catFilter='all';
+function pill(r){
+  if(r.flag==='hs')return '<span class="pill p-hs">사급</span>';
+  if(r.flag==='warn')return `<span class="pill p-warn">입고 확인</span> <span class="pill p-buy">${r.src}</span>`;
+  if(r.flag==='conf')return `<span class="pill p-conf">확인</span> <span class="pill p-buy">${r.src}</span>`;
+  if(r.flag==='chg')return `<span class="pill p-new" style="background:#fde8d4;color:#9a4a00">변경 권고</span> <span class="pill p-buy">${r.src}</span>`;
+  if(r.flag==='new')return `<span class="pill p-new">추가</span> <span class="pill p-buy">${r.src}</span>`;
+  return `<span class="pill p-buy">${r.src}</span>`;
+}
+function renderBOM(){
+  if(CUST){let h='<thead><tr><th class="n">No</th><th>품명 / 규격</th><th>제조사</th><th class="n">수량</th><th>비고</th></tr></thead><tbody>';let cur=null,no=0;
+    DATA.bom.forEach(r=>{no++;if(catFilter!=='all'&&r.cat!==catFilter)return;
+      if(r.cat!==cur){cur=r.cat;h+=`<tr class="cat"><td colspan="5">${r.cat}. ${DATA.cats[r.cat]}</td></tr>`;}
+      h+=`<tr><td class="n">${no}</td><td><div class="nm">${esc(r.name)}</div><div class="sp">${esc(r.spec)}</div></td><td>${r.mfr}</td><td class="n">${r.q} ${r.unit}</td><td>${esc(r.note||'')}</td></tr>`;});
+    document.getElementById('bomTbl').innerHTML=h+'</tbody>';return;}
+  const q=Math.max(1,parseInt(document.getElementById('qty').value)||1);
+  let h='<thead><tr><th class="n">No</th><th>품명 / 규격</th><th>제조사</th><th class="n">소요/대</th><th class="n">여유</th><th class="n">발주</th><th>조달</th><th>비고 · 근거</th></tr></thead><tbody>';
+  let cur=null,no=0;
+  DATA.bom.forEach(r=>{no++;
+    if(catFilter!=='all'&&r.cat!==catFilter)return;
+    if(r.cat!==cur){cur=r.cat;h+=`<tr class="cat"><td colspan="8">${r.cat}. ${DATA.cats[r.cat]}</td></tr>`;}
+    const need=+(r.q*q+(r.sp||0)).toFixed(1);
+    h+=`<tr class="${r.flag==='warn'?'warn':''}"><td class="n">${no}</td><td><div class="nm">${esc(r.name)}</div><div class="sp">${esc(r.spec)}</div></td><td>${r.mfr}</td><td class="n">${r.q} ${r.unit}</td><td class="n">${r.sp||''}</td><td class="n">${need}</td><td>${pill(r)}</td><td>${r.note?esc(r.note)+'<br>':''}<span class="sp">${esc(r.basis)}</span></td></tr>`;
+  });
+  document.getElementById('bomTbl').innerHTML=h+'</tbody>';
+  document.getElementById('bomTotal').innerHTML=`발주 = 소요/대 × ${q}대 + 여유 · 단가는 견적 단계에서 반영`;
+}
+document.getElementById('chips').innerHTML=['all',...Object.keys(DATA.cats)].map(c=>`<button class="chip ${c==='all'?'on':''}" data-c="${c}">${c==='all'?'전체':DATA.cats[c]}</button>`).join(' ');
+document.querySelectorAll('#chips .chip').forEach(b=>b.onclick=()=>{catFilter=b.dataset.c;document.querySelectorAll('#chips .chip').forEach(x=>x.classList.toggle('on',x===b));renderBOM();});
+if(!CUST)document.getElementById('qty').oninput=renderBOM;
+renderBOM();
+/* ---------- terminals & wires ---------- */
+(function(){
+  const tc={"전원":"p-conf","DI":"p-buy","DO":"p-hs","인터록":"p-new","예비":"p-off","접지":"p-off"};
+  let h='<thead><tr><th>단자</th><th>신호명</th><th>구분</th><th>챔버측</th><th>판넬 내부</th></tr></thead><tbody>';
+  DATA.terminals.forEach(t=>{h+=`<tr><td class="c">Xn.${t[0]}</td><td><div class="nm">${t[1]}</div></td><td><span class="pill ${tc[t[2]]}">${t[2]}</span></td><td>${t[3]}</td><td class="sp" style="color:var(--muted)">${t[4]}</td></tr>`;});
+  document.getElementById('termTbl').innerHTML=h+'</tbody>';
+  document.getElementById('ioStats').innerHTML=[['DI / CH','4<small> RUN · STOP · RESET · EMO OK</small>'],['DO / CH','3<small> 램프</small>'],['인터록 / CH','1<small> 쌍 + 예비 1쌍</small>'],['단자 합계','56<small> 점 (PE 포함)</small>']]
+   .map(([k,v])=>`<div class="card stat"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('');
+  const cc={"청":"#2E62C8","적":"#D04040","백":"#fff"};
+  let ch='n';
+  function renderW(){const sub=s=>s.replace(/n(?=[.\-−+ ]|$)/g,ch).replace(/^Xn/,'X'+ch);
+    const S=t=>ch==='n'?t:t.replace(/(EMO|RUN|STP|RST|CB|PD|K|X)n/g,'$1'+ch);
+    let h='<thead><tr><th>전선 번호</th><th>From</th><th>To</th><th>규격 · 색상</th><th>From 처리</th><th>To 처리</th><th class="n">예상 길이</th></tr></thead><tbody>';
+    DATA.wires.forEach(w=>{h+=`<tr><td class="c">${ch}-${w[0]}</td><td>${S(w[1])}</td><td>${S(w[2])}</td><td><span class="cw" style="background:${cc[w[3]]}"></span>AWG20 ${w[3]}</td><td class="sp" style="color:var(--muted)">${w[4]}</td><td class="sp" style="color:var(--muted)">${w[5]}</td><td class="n">${w[6].toFixed(2)} m</td></tr>`;});
+    document.getElementById('wireTbl').innerHTML=h+'</tbody>';}
+  document.getElementById('chChips').innerHTML=['n','1','2','3','4'].map(c=>`<button class="chip ${c==='n'?'on':''}" data-ch="${c}">${c==='n'?'CHn (공통)':'CH'+c}</button>`).join(' ');
+  document.querySelectorAll('#chChips .chip').forEach(b=>b.onclick=()=>{ch=b.dataset.ch;document.querySelectorAll('#chChips .chip').forEach(x=>x.classList.toggle('on',x===b));renderW();});
+  renderW();
+  const L=DATA.len,E=DATA.ends;
+  document.getElementById('wireSpecTbl').innerHTML=`<thead><tr><th>용도</th><th>규격 · 색상</th><th class="n">가닥</th><th class="n">소요</th></tr></thead><tbody>
+   <tr><td>신호 (DI · DO · 인터록 · 코일)</td><td><span class="cw" style="background:#2E62C8"></span>AWG20 청</td><td class="n">48</td><td class="n">${L['청']} m</td></tr>
+   <tr><td>+24V 전원</td><td><span class="cw" style="background:#D04040"></span>AWG20 적</td><td class="n">28</td><td class="n">${L['적']} m</td></tr>
+   <tr><td>0V 공통</td><td><span class="cw" style="background:#fff"></span>AWG20 백</td><td class="n">20</td><td class="n">${L['백']} m</td></tr>
+   <tr><td>판넬 접지</td><td><span class="cw" style="background:linear-gradient(90deg,#3A9A4A 50%,#E8C93A 50%)"></span>AWG14 녹/황</td><td class="n">1</td><td class="n">1 m</td></tr>
+   <tr class="cat"><td colspan="4">끝단 처리</td></tr>
+   <tr><td>페룰 AI 0,5-8 WH</td><td>PT 단자 · PTFIX</td><td></td><td class="n">${E['페룰 AI 0,5-8']}</td></tr>
+   <tr><td>절연 링 RV1.25-3.5</td><td>EMO · 릴레이 소켓</td><td></td><td class="n">${E['링 RV1.25-3.5']}</td></tr>
+   <tr><td>절연 리셉터클 #110</td><td>KDX 버튼 (2.8 mm 탭)</td><td></td><td class="n">${E['리셉터클 #110']}</td></tr>
+   <tr><td>절연 링 RV1.25-4</td><td>CP30 (M4)</td><td></td><td class="n">${E['링 RV1.25-4']}</td></tr>
+   <tr><td>마킹 튜브 Ø2.5</td><td>모든 전선 양단</td><td></td><td class="n">${DATA.n_wires*2}</td></tr></tbody>`;
+})();
+
+/* ---------- drawings ---------- */
+const NS='http://www.w3.org/2000/svg';
+function mk(id,vb){const s=document.createElementNS(NS,'svg');s.setAttribute('viewBox',vb);document.getElementById(id).appendChild(s);return s;}
+function el(t,a,p,tx){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(tx!=null)e.textContent=tx;p.appendChild(e);return e;}
+const INK='#1b2430',BLUE='#1F4E9C',MUT='#5b6676',HAIR='#cbd8ed',AMB='#C98A2B',RED='#c1443c',GRN='#1F8A5F';
+const W=482.6,H=532.6,COL=[91.3,191.3,291.3,391.3],BY=[152,200,248],BN=['RUN','STOP','RESET'],BC=[GRN,RED,RED];
+const SLOT_Y=[21.8,288.5,510.8],SX=(W-465.1)/2;
+function defs(s){el('defs',{},s).innerHTML='<marker id="ar'+s.id+'" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 1L10 5L0 9z" fill="#1F4E9C"/></marker>';}
+let AR='';
+function dimH(s,x1,x2,y,txt,ext){el('line',{x1,y1:y,x2,y2:y,stroke:BLUE,'stroke-width':.6,'marker-start':`url(#${AR})`,'marker-end':`url(#${AR})`},s);
+  if(ext!=null){el('line',{x1,y1:ext,x2:x1,y2:y+3,stroke:'#9aa4b2','stroke-width':.4},s);el('line',{x1:x2,y1:ext,x2,y2:y+3,stroke:'#9aa4b2','stroke-width':.4},s);}
+  el('text',{x:(x1+x2)/2,y:y-2.5,'font-size':8.5,'text-anchor':'middle',fill:BLUE},s,txt);}
+function dimV(s,x,y1,y2,txt,ext){el('line',{x1:x,y1,x2:x,y2,stroke:BLUE,'stroke-width':.6,'marker-start':`url(#${AR})`,'marker-end':`url(#${AR})`},s);
+  if(ext!=null){el('line',{x1:ext,y1,x2:x-3,y2:y1,stroke:'#9aa4b2','stroke-width':.4},s);el('line',{x1:ext,y1:y2,x2:x-3,y2,stroke:'#9aa4b2','stroke-width':.4},s);}
+  el('text',{x:x-3,y:(y1+y2)/2,'font-size':8.5,'text-anchor':'middle',fill:BLUE,transform:`rotate(-90 ${x-3} ${(y1+y2)/2})`},s,txt);}
+function panel(s){el('rect',{x:0,y:0,width:W,height:H,rx:3,fill:'#eef2f8',stroke:INK,'stroke-width':1},s);
+  SLOT_Y.forEach(y=>[SX,W-SX].forEach(x=>el('rect',{x:x-5,y:y-3.5,width:10,height:7,rx:3.5,fill:'#fff',stroke:INK,'stroke-width':.7},s)));}
+
+/* ① front */
+(function(){const s=mk('svgFront','-62 -36 620 610');s.id='f';AR='arf';defs(s);panel(s);
+ el('rect',{x:20,y:290,width:W-40,height:225,rx:4,fill:'none',stroke:HAIR,'stroke-dasharray':'5 4'},s);
+ el('text',{x:W/2,y:405,'font-size':10,fill:MUT,'text-anchor':'middle'},s,'무타공 영역 (후면 DIN 레일 · 덕트)');
+ COL.forEach((x,i)=>{
+  el('rect',{x:x-25,y:11,width:50,height:14,rx:2,fill:'#FFE25A',stroke:'#D9BE2E','stroke-width':.5},s);
+  el('text',{x,y:21.5,'font-size':9.5,'font-weight':700,'text-anchor':'middle',fill:INK},s,'CH'+(i+1));
+  el('rect',{x:x-34,y:32,width:68,height:84,rx:14,fill:'#F2A43A',stroke:AMB,'stroke-width':.8},s);
+  el('circle',{cx:x,cy:67.5,r:20.45,fill:'#D9493F',stroke:'#8E2F29','stroke-width':.8},s);
+  el('circle',{cx:x,cy:67.5,r:12.5,fill:'none',stroke:'#fff','stroke-width':.7,'stroke-dasharray':'2 2'},s);
+  BY.forEach((y,j)=>{
+   el('rect',{x:x-18,y:y-25,width:36,height:10,rx:1.5,fill:'#FFE25A',stroke:'#D9BE2E','stroke-width':.5},s);
+   el('text',{x,y:y-17.3,'font-size':7.5,'font-weight':700,'text-anchor':'middle',fill:INK},s,BN[j]);
+   el('circle',{cx:x,cy:y,r:11,fill:'#D9DDE3',stroke:'#9AA3B2','stroke-width':.8},s);
+   el('circle',{cx:x,cy:y,r:8,fill:BC[j]},s);
+   el('circle',{cx:x,cy:y,r:8,fill:'none',stroke:'#fff','stroke-width':.6,'stroke-dasharray':'1.6 1.6'},s);
+  });
+ });
+ dimH(s,0,W,-22,'482.6 (19")',-2);dimH(s,SX,W-SX,-8,'465.1 (EIA 홀 피치)',null);dimV(s,-42,0,H,'532.6 (12U)',-2);
+ COL.forEach((x,i)=>dimH(s,i?COL[i-1]:0,x,H+16,i?'100':'91.3',H+2));
+ dimV(s,W+18,0,67.5,'67.5',W+2);dimV(s,W+36,0,152,'152',W+2);dimV(s,W+18,152,200,'48',W+2);dimV(s,W+18,200,248,'48',W+2);
+ el('text',{x:COL[3]+38,y:73,'font-size':8,fill:BLUE},s,'Ø25');el('text',{x:COL[3]+14,y:156,'font-size':8,fill:BLUE},s,'Ø16');
+})();
+document.getElementById('holeTbl').innerHTML=`<thead><tr><th>항목</th><th>값</th><th class="n">수량</th></tr></thead><tbody>
+ <tr><td>EMO 타공 (KGE-J)</td><td class="mono">Ø25.0 +0.3</td><td class="n">4</td></tr>
+ <tr><td>버튼 타공 (KDX-G)</td><td class="mono">Ø16.0 +0.2</td><td class="n">12</td></tr>
+ <tr><td>랙 고정 슬롯 (M6)</td><td class="mono">7 × 10</td><td class="n">6</td></tr>
+ <tr><td>슬롯 높이 (위에서)</td><td class="mono" colspan="2">21.8 / 288.5 / 510.8</td></tr>
+ <tr class="cat"><td colspan="3">위치 (mm)</td></tr>
+ <tr><td>열 중심 (왼쪽에서)</td><td class="mono" colspan="2">91.3 / 191.3 / 291.3 / 391.3</td></tr>
+ <tr><td>CH 명판 중심</td><td class="mono" colspan="2">18</td></tr>
+ <tr><td>EMO 중심</td><td class="mono" colspan="2">67.5</td></tr>
+ <tr><td>RUN / STOP / RESET</td><td class="mono" colspan="2">152 / 200 / 248</td></tr></tbody>`;
+document.getElementById('zoneTbl').innerHTML=`<thead><tr><th>구역</th><th>높이 (위에서)</th><th>내용</th></tr></thead><tbody>
+ <tr><td>스위치</td><td class="mono">0~260</td><td>EMO · 버튼 본체 (후면 62)</td></tr>
+ <tr><td>덕트 D1</td><td class="mono">268~293</td><td>스위치 배선</td></tr>
+ <tr><td>레일 A</td><td class="mono">298~378</td><td>Kn · PDn+ · PDn−</td></tr>
+ <tr><td>덕트 D2</td><td class="mono">383~408</td><td>레일 간 배선</td></tr>
+ <tr><td>레일 B</td><td class="mono">413~488</td><td>CBn · Xn (13 + PE)</td></tr>
+ <tr><td>케이블 고정</td><td class="mono">495~515</td><td>타이 마운트 8</td></tr></tbody>`;
+
+/* ② rear (mirrored) */
+(function(){const s=mk('svgRear','-30 -20 545 600');panel(s);const RX=x=>W-x;
+ COL.forEach((fx,i)=>{const x=RX(fx);
+  el('text',{x,y:16,'font-size':10,'font-weight':700,fill:BLUE,'text-anchor':'middle'},s,'CH'+(i+1));
+  el('rect',{x:x-19,y:48.5,width:38,height:38,rx:3,fill:'#fff',stroke:'#9aa4b2','stroke-dasharray':'3 2'},s);
+  el('text',{x,y:70,'font-size':7.5,fill:MUT,'text-anchor':'middle'},s,'EMO'+(i+1));
+  BY.forEach((y,j)=>{el('rect',{x:x-12,y:y-12,width:24,height:24,rx:2,fill:'#fff',stroke:'#9aa4b2','stroke-dasharray':'3 2'},s);
+   el('text',{x,y:y+3,'font-size':7,fill:MUT,'text-anchor':'middle'},s,['RUN','STP','RST'][j]+(i+1));});
+ });
+ [[268,'덕트 D1 (25 × 40)'],[383,'덕트 D2 (25 × 40)']].forEach(([y,t])=>{el('rect',{x:26,y,width:430,height:25,fill:'#E4E8EE',stroke:'#9aa4b2'},s);
+  for(let k=34;k<456;k+=12)el('line',{x1:k,y1:y+2,x2:k,y2:y+23,stroke:'#C7CED8','stroke-width':.6},s);
+  el('text',{x:W/2,y:y+16,'font-size':9,fill:MUT,'text-anchor':'middle'},s,t);});
+ [[338,'레일 A'],[450,'레일 B']].forEach(([y,t])=>{el('rect',{x:26,y:y-17.5,width:430,height:35,fill:'#C9CFD8',stroke:'#9aa4b2'},s);
+  el('text',{x:22,y:y+3,'font-size':8,fill:MUT,'text-anchor':'end'},s,t);
+  [26,446.5].forEach(x=>el('rect',{x,y:y-22,width:9.5,height:44,fill:'#5B6472'},s));});
+ COL.forEach((fx,i)=>{const cx=RX(fx),n=i+1;let x=cx-43.6;
+  el('rect',{x,y:307,width:30,height:62,rx:2,fill:'#2B2F36'},s);el('rect',{x:x+3,y:318,width:24,height:36,rx:2,fill:'#E9EDF3'},s);
+  el('text',{x:x+15,y:340,'font-size':8,'font-weight':700,'text-anchor':'middle',fill:INK},s,'K'+n);x+=30;
+  [['#D4483F','+'],['#2E62C8','−']].forEach(([c,sg])=>{el('rect',{x,y:309,width:28.6,height:58.1,rx:2,fill:'#B9C0CA'},s);
+   el('rect',{x:x+1,y:317,width:26.6,height:41,rx:2,fill:c},s);
+   el('text',{x:x+14.3,y:341,'font-size':7.5,'font-weight':700,'text-anchor':'middle',fill:'#fff'},s,'PD'+n+sg);x+=28.6;});
+  x=cx-43.5;
+  el('rect',{x,y:413.5,width:12,height:73,rx:1.5,fill:'#E8EAEE',stroke:'#7E8796','stroke-width':.6},s);
+  el('rect',{x:x+2.5,y:440,width:7,height:12,fill:'#D9493F'},s);
+  el('text',{x:x+6,y:483,'font-size':6.5,'font-weight':700,'text-anchor':'middle',fill:INK},s,'CB'+n);x+=12;
+  for(let t=0;t<14;t++){const pe=t===13;el('rect',{x:x+t*5.2,y:425.7,width:5.2,height:48.6,fill:pe?'#3A9A4A':'#B9C0CA',stroke:'#8A93A3','stroke-width':.3},s);
+   if(pe)el('rect',{x:x+t*5.2,y:445,width:5.2,height:6,fill:'#E8C93A'},s);}
+  el('rect',{x:x+72.8,y:425.7,width:2.2,height:48.6,fill:'#7E8796'},s);
+  el('text',{x:x+37,y:422,'font-size':8,'font-weight':700,'text-anchor':'middle',fill:BLUE},s,'X'+n);
+  [cx-20,cx+20].forEach(tx=>el('rect',{x:tx-6,y:500,width:12,height:9,rx:2,fill:'#fff',stroke:'#7E8796'},s));
+ });
+ el('text',{x:W/2,y:527,'font-size':9,fill:MUT,'text-anchor':'middle'},s,'↓ 챔버 케이블 인입 (타이 마운트로 고정)');
+ el('circle',{cx:241.3,cy:504.5,r:4.5,fill:'#fff',stroke:GRN,'stroke-width':1.4},s);
+ el('text',{x:241.3,y:496,'font-size':7.5,fill:GRN,'text-anchor':'middle'},s,'PE M5');
+ el('text',{x:W/2,y:H+14,'font-size':9,fill:MUT,'text-anchor':'middle'},s,'후면 (뒤에서 본 모습 · 좌우 반전) · 치수 mm');
+})();
+
+/* ③ schematic */
+(function(){const s=mk('svgSch','0 0 912 624');
+ const P='#C1443C',Z='#5B6472',S='#1F4E9C',TX=760,RP=120,RZ=560;
+ const TY={1:28,2:56,3:150,4:198,5:246,6:294,7:352,8:398,9:444,10:484,11:512,12:546,13:574,PE:604};
+ const L=(x1,y1,x2,y2,c,w)=>el('line',{x1,y1,x2,y2,stroke:c,'stroke-width':w||1.6},s);
+ const lab=(x,y,t,c,a)=>el('text',{x,y,'font-size':10,fill:c||MUT,'text-anchor':a||'middle'},s,t);
+ function term(n,name){const y=TY[n];el('rect',{x:TX,y:y-9,width:26,height:18,rx:2,fill:'#E9EDF3',stroke:'#8A93A3'},s);
+  el('text',{x:TX+13,y:y+4,'font-size':10,'font-weight':700,'text-anchor':'middle',fill:INK},s,n);lab(TX+32,y+4,name,INK,'start');}
+ const dot=(x,y,c)=>el('circle',{cx:x,cy:y,r:3,fill:c},s);
+ function NO(x,y,tag,pins){L(x,y,x+14,y,'#333',1.4);L(x+14,y,x+40,y-10,'#333',1.4);L(x+40,y,x+54,y,'#333',1.4);
+  lab(x+27,y-16,tag,INK);lab(x+3,y+14,pins[0],MUT,'start');lab(x+54,y+14,pins[1],MUT,'end');}
+ function NC(x,y,tag,pins){NO(x,y,tag,pins);L(x+40,y,x+40,y-12,'#333',1.4);}
+ function coil(x,y,tag){el('rect',{x,y:y-11,width:40,height:22,fill:'#fff',stroke:'#333','stroke-width':1.4},s);lab(x+20,y+4,tag,INK);}
+ function lamp(x,y,tag,c){el('circle',{cx:x,cy:y,r:11,fill:'#fff',stroke:'#333','stroke-width':1.4},s);
+  L(x-7.8,y-7.8,x+7.8,y+7.8,'#333',1.2);L(x-7.8,y+7.8,x+7.8,y-7.8,'#333',1.2);lab(x,y-16,tag,c||INK);}
+ function wn(x,y,t){el('rect',{x:x-15,y:y-17,width:30,height:13,rx:3,fill:'#fff'},s);lab(x,y-7,t,BLUE);}
+ const TN={1:'+24V IN',2:'0V IN',3:'RUN (DI)',4:'STOP (DI)',5:'RESET (DI)',6:'EMO OK (DI)',7:'RUN LAMP (DO)',8:'STOP LAMP (DO)',9:'RESET LAMP (DO)',10:'ILK-1 COM',11:'ILK-1 NO',12:'ILK-2 COM (예비)',13:'ILK-2 NO (예비)',PE:'PE / 실드'};
+ for(const n in TN)term(n,TN[n]);
+ L(TX,TY[1],390,TY[1],P);el('rect',{x:330,y:TY[1]-10,width:60,height:20,fill:'#fff',stroke:'#333','stroke-width':1.4},s);lab(360,TY[1]+4,'CBn 5A',INK);
+ L(330,TY[1],RP,TY[1],P);wn(560,TY[1],'n01');wn(230,TY[1],'n02');
+ el('rect',{x:RP-16,y:TY[1]+10,width:32,height:16,rx:3,fill:'#D4483F'},s);lab(RP,TY[1]+22,'PDn+','#fff');
+ L(RP,TY[1],RP,TY[6],P,2.4);
+ L(TX,TY[2],RZ,TY[2],Z);wn(660,TY[2],'n03');
+ el('rect',{x:RZ-16,y:TY[2]+4,width:32,height:16,rx:3,fill:'#2E62C8'},s);lab(RZ,TY[2]+16,'PDn−','#fff');
+ L(RZ,TY[2]+20,RZ,TY[9],Z,2.4);
+ const yE=96;dot(RP,yE,P);L(RP,yE,190,yE,P);NC(190,yE,'EMOn',['11','12']);L(244,yE,440,yE,S);
+ coil(440,yE,'Kn');lab(438,yE+24,'14(+)',MUT,'end');lab(482,yE+24,'13(−)',MUT,'start');L(480,yE,RZ,yE,Z);dot(RZ,yE,Z);
+ wn(160,yE,'n04');wn(340,yE,'n05');wn(520,yE,'n06');
+ [[3,'RUNn','NO',['1','4'],'n07','n08'],[4,'STPn','NC',['2','3'],'n09','n10'],[5,'RSTn','NO',['1','4'],'n11','n12'],[6,'Kn 접점1','NO',['9','5'],'n13','n14']].forEach(([t,tag,typ,pins,w1,w2])=>{const y=TY[t];
+  dot(RP,y,P);L(RP,y,190,y,P);(typ==='NO'?NO:NC)(190,y,tag,pins);L(244,y,TX,y,S);wn(160,y,w1);wn(470,y,w2);});
+ [[7,'RUNn',GRN,'n15','n16'],[8,'STPn',RED,'n17','n18'],[9,'RSTn',RED,'n19','n20']].forEach(([t,tag,c,w1,w2])=>{const y=TY[t];
+  L(TX,y,632,y,S);lamp(620,y,tag+' X1(+)-X2',c);L(609,y,RZ,y,Z);dot(RZ,y,Z);wn(700,y,w1);wn(586,y,w2);});
+ [[10,11,'Kn 접점2','10','6','n21','n22'],[12,13,'Kn 접점3','11','7','n23','n24']].forEach(([a,b,tag,p1,p2,w1,w2])=>{
+  const x=690,y1=TY[a],y2=TY[b];L(TX,y1,x,y1,S);L(TX,y2,x,y2,S);
+  L(x,y1,x,y1+6,'#333',1.4);L(x,y2,x,y2-6,'#333',1.4);L(x,y2-6,x-9,y1+8,'#333',1.4);
+  lab(x-14,(y1+y2)/2+4,tag+' ('+p1+'-'+p2+')',INK,'end');wn(728,y1,w1);wn(728,y2,w2);});
+ el('rect',{x:20,y:480,width:430,height:120,rx:10,fill:'#f4f6fa',stroke:'#d5dbe4'},s);
+ [['범례',INK,700],['━ 적 +24V (PDn+)   ━ 회 0V (PDn−)   ━ 청 신호',MUT,400],['EMO b접점 → Kn 코일 유지, 누르면 Kn OFF',MUT,400],
+  ['릴레이 핀: 실물 인쇄 확인 (COM 9~12 · NO 5~8)',MUT,400],['접점4(12-8) · NC(1~4) 미사용',MUT,400]].forEach(([t,c,w],i)=>el('text',{x:36,y:504+i*21,'font-size':11.5,'font-weight':w,fill:c},s,t));
+})();
+
+/* overview flow */
+(function(){const s=mk('svgFlow','0 0 900 200');
+ const box=(x,y,w,h,t,sub,fill,fc)=>{el('rect',{x,y,width:w,height:h,rx:9,fill:fill||'#fff',stroke:fill?fill:'#cbd8ed'},s);
+  el('text',{x:x+w/2,y:y+(sub?h/2-3:h/2+5),'font-size':13,'font-weight':700,'text-anchor':'middle',fill:fc||INK},s,t);
+  if(sub)el('text',{x:x+w/2,y:y+h/2+14,'font-size':11,'text-anchor':'middle',fill:fc?'#dfe6f0':MUT},s,sub);};
+ const ar=(x1,y1,x2,y2,c,d)=>{el('line',{x1,y1,x2,y2,stroke:c,'stroke-width':2,'stroke-dasharray':d||''},s);
+  const a=Math.atan2(y2-y1,x2-x1),L=8;el('path',{d:`M${x2} ${y2} L${x2-L*Math.cos(a-.4)} ${y2-L*Math.sin(a-.4)} L${x2-L*Math.cos(a+.4)} ${y2-L*Math.sin(a+.4)}z`,fill:c},s);};
+ box(10,70,140,60,'챔버 n','24VDC · DIO','#153B78','#fff');
+ box(210,70,110,60,'Xn','단자 14점');
+ box(380,14,150,46,'CBn 5A → PDn±','+24V / 0V 분배');
+ box(380,78,150,46,'EMOn → Kn','EMO OK · 인터록');
+ box(380,142,150,46,'RUN · STOP · RESET','DI 3 · 램프 DO 3');
+ box(600,78,130,46,'전면 CHn 열','EMO + 버튼 3');
+ ar(150,92,207,92,'#c8372d');ar(207,108,153,108,'#1F4E9C');
+ ar(320,84,376,40,'#c8372d');ar(376,101,323,101,'#1F4E9C');ar(323,116,376,160,'#1F4E9C',);
+ ar(530,101,596,101,'#5b6676','4 3');ar(530,165,596,115,'#5b6676','4 3');
+ el('text',{x:180,y:84,'font-size':10.5,fill:'#c8372d','text-anchor':'middle'},s,'전원');
+ el('text',{x:180,y:126,'font-size':10.5,fill:BLUE,'text-anchor':'middle'},s,'DI/DO');
+ el('text',{x:770,y:96,'font-size':11,fill:MUT},s,'× 4채널');el('text',{x:770,y:114,'font-size':11,fill:MUT},s,'(서로 독립)');
+})();
+/* ================= shared panel data ================= */
+const COLORS={'7032':{name:'RAL 7032',ko:'페블 그레이',hex:'#B8B799'},'1013':{name:'RAL 1013',ko:'오이스터 화이트',hex:'#E3D9C6'},'7035':{name:'RAL 7035',ko:'라이트 그레이',hex:'#CBD0CC'}};
+let curColor='7032', lampOn=true;
+const STUD_X=[40.6,241.3,442.0], STUD_ROWS=[[280.5,'덕트 D1'],[338,'레일 A'],[395.5,'덕트 D2'],[450,'레일 B']];
+const TIE=[];COL.forEach(x=>{TIE.push(x-20,x+20);});const TIE_Y=504.5, GND=[241.3,504.5];
+
+/* ================= panel fabrication drawing ================= */
+(function(){const s=mk('svgPlate','-92 -52 680 700');s.id='p';AR='arp';defs(s);
+ const HC='#b42318',SG='#1e7b34';
+ el('rect',{x:0,y:0,width:W,height:H,fill:'#fff',stroke:INK,'stroke-width':1},s);
+ [[0,16.3],[W-16.3,W]].forEach(([a,b])=>el('rect',{x:a,y:.5,width:b-a,height:H-1,fill:'#f1f3f7',stroke:'none'},s));
+ [8,W-8].forEach(x=>el('text',{x,y:H/2,'font-size':6.5,fill:MUT,'text-anchor':'middle',transform:`rotate(-90 ${x} ${H/2})`},s,'랙 포스트 접촉면 (부품 금지)'));
+ const cl=(x1,y1,x2,y2)=>el('line',{x1,y1,x2,y2,stroke:HC,'stroke-width':.3,'stroke-dasharray':'6 1.5 1.5 1.5'},s);
+ COL.forEach(x=>cl(x,50,x,262));[67.5,...BY].forEach(y=>cl(60,y,W-60,y));
+ COL.forEach((x,i)=>{el('circle',{cx:x,cy:67.5,r:12.5,fill:'none',stroke:HC,'stroke-width':.8},s);
+   BY.forEach(y=>el('circle',{cx:x,cy:y,r:8,fill:'none',stroke:HC,'stroke-width':.8},s));
+   el('rect',{x:x-25,y:11,width:50,height:14,fill:'none',stroke:'#9aa4b2','stroke-dasharray':'2 2','stroke-width':.5},s);
+   el('text',{x,y:20.5,'font-size':7,fill:MUT,'text-anchor':'middle'},s,'CH'+(i+1)+' 명판');});
+ el('text',{x:COL[3]+16,y:56,'font-size':7.5,fill:HC},s,'4-Ø25.0 +0.3/0');
+ el('text',{x:COL[3]+12,y:143,'font-size':7.5,fill:HC},s,'12-Ø16.0 +0.2/0');
+ SLOT_Y.forEach(y=>[SX,W-SX].forEach(x=>el('rect',{x:x-5,y:y-3.5,width:10,height:7,rx:3.5,fill:'none',stroke:HC,'stroke-width':.8},s)));
+ el('text',{x:SX+8,y:SLOT_Y[0]+16,'font-size':7,fill:HC},s,'6-슬롯 7 × 10 (M6)');
+ const stud=(x,y,r)=>{el('circle',{cx:x,cy:y,r,fill:'none',stroke:SG,'stroke-width':.7,'stroke-dasharray':'1.5 1'},s);
+   el('line',{x1:x-r-2,y1:y,x2:x+r+2,y2:y,stroke:SG,'stroke-width':.3},s);el('line',{x1:x,y1:y-r-2,x2:x,y2:y+r+2,stroke:SG,'stroke-width':.3},s);};
+ STUD_ROWS.forEach(([y,t])=>{STUD_X.forEach(x=>stud(x,y,2.1));el('text',{x:STUD_X[0]+8,y:y-4,'font-size':6.5,fill:SG},s,t);});
+ TIE.forEach(x=>stud(x,TIE_Y,2.1));stud(GND[0],GND[1],2.7);
+ el('text',{x:GND[0]+6,y:GND[1]+11,'font-size':6.5,fill:SG},s,'M5 접지 (마스킹 Ø15)');
+ el('text',{x:TIE[0]-4,y:TIE_Y-6,'font-size':6.5,fill:SG},s,'타이 마운트 8');
+ el('text',{x:W/2,y:318,'font-size':7.5,fill:SG,'text-anchor':'middle','font-weight':700},s,'20-PEM FH-M4-12 (Ø4.2 +0.08) · 1-FH-M5-15 (Ø5.4 +0.08) — 후면 압입');
+ el('text',{x:W/2,y:330,'font-size':7,fill:MUT,'text-anchor':'middle'},s,'앞면 무타공 영역 — 후면 DIN 레일 · 덕트');
+ const ordY=(ys,x,anchor,col)=>ys.forEach(y=>{el('line',{x1:anchor==='end'?x+2:x-2,y1:y,x2:anchor==='end'?0:W,y2:y,stroke:'#cbd3df','stroke-width':.25},s);
+   el('text',{x,y:y+2.3,'font-size':6.8,fill:col||BLUE,'text-anchor':anchor},s,y);});
+ ordY([0,21.8,67.5,152,200,248,288.5,510.8,532.6],-6,'end');
+ ordY([280.5,338,395.5,450,504.5],W+6,'start',SG);
+ const ordX=(xs,y,up,col)=>xs.forEach(x=>{el('line',{x1:x,y1:up?y+2:y-2,x2:x,y2:up?0:H,stroke:'#cbd3df','stroke-width':.25},s);
+   el('text',{x:x+2.3,y,'font-size':6.8,fill:col||BLUE,'text-anchor':up?'start':'end',transform:`rotate(-90 ${x+2.3} ${y})`},s,x);});
+ ordX([0,8.75,91.3,191.3,291.3,391.3,473.85,482.6],H+6,false);
+ ordX([40.6,71.3,111.3,171.3,211.3,241.3,271.3,311.3,371.3,411.3,442],-6,true,SG);
+ el('text',{x:-6,y:-6,'font-size':7,fill:BLUE,'text-anchor':'end','font-weight':700},s,'0,0');
+ const ty=H+46;el('rect',{x:0,y:ty,width:W,height:52,fill:'#fff',stroke:INK,'stroke-width':.8},s);
+ [[0,ty+17,W,ty+17],[300,ty,300,ty+52],[0,ty+34,W,ty+34]].forEach(([a,b,c,d])=>el('line',{x1:a,y1:b,x2:c,y2:d,stroke:INK,'stroke-width':.5},s));
+ [[6,ty+12,'DIO Control Signal Panel — 전면 판넬 가공도',700],[6,ty+29,'SPCC 2.0t · 분체도장 RAL 7032 / 1013 / 7035 (고객 선택)',400],[6,ty+46,'랙 NX-SH1200 · 19" 12U',400],
+  [306,ty+12,'Rev.A · '+DATA.date,400],[306,ty+29,'공차 ISO 2768-m · 위치 ±0.3',400],[306,ty+46,'㈜비씨테크 (BCT)',700]].forEach(([x,y,t,w])=>el('text',{x,y,'font-size':7.5,'font-weight':w,fill:INK},s,t));
+})();
+(function(){const rows=[
+ ['E1–E4','EMO 타공 (KGE-J4R1R)','Ø25.0 +0.3/0','X 91.3 / 191.3 / 291.3 / 391.3 · Y 67.5',4],
+ ['B1–B12','버튼 타공 (KDX-G)','Ø16.0 +0.2/0','X 열 중심과 같음 · Y 152 / 200 / 248',12],
+ ['S1–S6','랙 고정 슬롯 (M6 케이지너트)','7 × 10 장공','X 8.75 / 473.85 · Y 21.8 / 288.5 / 510.8',6],
+ ['M1–M12','PEM 스터드 — 덕트 · DIN 레일','FH-M4-12 · 구멍 Ø4.2 +0.08','X 40.6 / 241.3 / 442.0 · Y 280.5 / 338 / 395.5 / 450',12],
+ ['M13–M20','PEM 스터드 — 타이 마운트','FH-M4-12 · 구멍 Ø4.2 +0.08','X 71.3 / 111.3 / 171.3 / 211.3 / 271.3 / 311.3 / 371.3 / 411.3 · Y 504.5',8],
+ ['G1','PEM 스터드 — 접지','FH-M5-15 · 구멍 Ø5.4 +0.08','X 241.3 · Y 504.5 · 주변 Ø15 도장 마스킹',1]];
+ let h='<thead><tr><th>ID</th><th>구분</th><th>크기</th><th>위치 (mm, 왼쪽 위 기준)</th><th class="n">수량</th></tr></thead><tbody>';
+ rows.forEach(r=>h+=`<tr><td class="c">${r[0]}</td><td>${r[1]}</td><td class="mono">${r[2]}</td><td class="mono" style="font-size:12.5px">${r[3]}</td><td class="n">${r[4]}</td></tr>`);
+ document.getElementById('plHoleTbl').innerHTML=h+'</tbody>';})();
+
+/* ================= image view ================= */
+function shade(hex,f){const n=parseInt(hex.slice(1),16);const r=n>>16,g=n>>8&255,b=n&255;const m=v=>Math.max(0,Math.min(255,Math.round(f>0?v+(255-v)*f:v*(1+f))));return '#'+[m(r),m(g),m(b)].map(v=>v.toString(16).padStart(2,'0')).join('');}
+function drawImg(host,key){const box=document.getElementById(host);box.innerHTML='';const c=COLORS[key].hex,u=host+key;
+ const s=mk(host,'-14 -14 511 561');
+ el('defs',{},s).innerHTML=`<linearGradient id="pg${u}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${shade(c,.12)}"/><stop offset=".6" stop-color="${c}"/><stop offset="1" stop-color="${shade(c,-.1)}"/></linearGradient>
+  <radialGradient id="mu${u}" cx=".38" cy=".35" r=".7"><stop offset="0" stop-color="#ff6a5c"/><stop offset=".55" stop-color="#d22f25"/><stop offset="1" stop-color="#8e1c15"/></radialGradient>
+  <radialGradient id="bz${u}" cx=".4" cy=".35" r=".75"><stop offset="0" stop-color="#ffffff"/><stop offset=".5" stop-color="#c8ced6"/><stop offset="1" stop-color="#7d8794"/></radialGradient>
+  <radialGradient id="lg${u}" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="#b6ffcf"/><stop offset=".6" stop-color="#1fb85a"/><stop offset="1" stop-color="#0b6e33"/></radialGradient>
+  <radialGradient id="lr${u}" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="#ffc1b8"/><stop offset=".6" stop-color="#e03a2c"/><stop offset="1" stop-color="#8e1c15"/></radialGradient>
+  <radialGradient id="dg${u}" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="#5f8f6c"/><stop offset="1" stop-color="#1d3a26"/></radialGradient>
+  <radialGradient id="dr${u}" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="#8f5a55"/><stop offset="1" stop-color="#3a1714"/></radialGradient>
+  <filter id="gl${u}" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="3.2"/></filter>
+  <filter id="sh${u}" x="-10%" y="-10%" width="130%" height="130%"><feDropShadow dx="1.5" dy="2.5" stdDeviation="2" flood-opacity=".35"/></filter>`;
+ el('rect',{x:0,y:0,width:W,height:H,rx:3,fill:`url(#pg${u})`,stroke:shade(c,-.3),'stroke-width':1.2,filter:`url(#sh${u})`},s);
+ for(let x=24;x<W-20;x+=3.2)el('line',{x1:x,y1:2,x2:x,y2:H-2,stroke:shade(c,-.06),'stroke-width':.35,opacity:.55},s);
+ SLOT_Y.forEach(y=>[SX,W-SX].forEach(x=>{el('rect',{x:x-5,y:y-3.5,width:10,height:7,rx:3.5,fill:'#1f2630'},s);
+   el('circle',{cx:x,cy:y,r:5.2,fill:`url(#bz${u})`,stroke:'#6b7480','stroke-width':.5},s);el('line',{x1:x-3,y1:y,x2:x+3,y2:y,stroke:'#59626e','stroke-width':.8},s);}));
+ COL.forEach((x,i)=>{
+  el('rect',{x:x-25,y:11,width:50,height:14,rx:1.5,fill:'#FFE02E'},s);
+  el('text',{x,y:21.6,'font-size':10,'font-weight':700,'text-anchor':'middle',fill:'#111'},s,'CH'+(i+1));
+  el('rect',{x:x-34,y:32,width:68,height:84,rx:14,fill:'#F39A1E',stroke:'#c66f00','stroke-width':.8,filter:`url(#sh${u})`},s);
+  el('rect',{x:x-28,y:38,width:56,height:72,rx:10,fill:'#E8880F'},s);
+  el('text',{x,y:44.5,'font-size':5.6,'font-weight':700,'text-anchor':'middle',fill:'#7a2a00','letter-spacing':'.6'},s,'EMERGENCY');
+  el('text',{x,y:108.5,'font-size':6,'font-weight':700,'text-anchor':'middle',fill:'#7a2a00','letter-spacing':'1.4'},s,'STOP');
+  el('circle',{cx:x,cy:67.5,r:15,fill:'#1d1d1d'},s);
+  el('circle',{cx:x,cy:67.5,r:20.45,fill:`url(#mu${u})`,filter:`url(#sh${u})`},s);
+  ['M -9 -6 A 11 11 0 0 1 9 -6','M 9 6 A 11 11 0 0 1 -9 6'].forEach(d=>el('path',{d,transform:`translate(${x} 67.5)`,fill:'none',stroke:'#fff','stroke-width':1.6,'stroke-linecap':'round',opacity:.9},s));
+  BY.forEach((y,j)=>{
+   el('rect',{x:x-18,y:y-25,width:36,height:10,rx:1,fill:'#FFE02E'},s);
+   el('text',{x,y:y-17.5,'font-size':7.6,'font-weight':700,'text-anchor':'middle',fill:'#111'},s,BN[j]);
+   el('circle',{cx:x,cy:y,r:11,fill:`url(#bz${u})`,stroke:'#6b7480','stroke-width':.5,filter:`url(#sh${u})`},s);
+   const g=j===0;
+   if(lampOn)el('circle',{cx:x,cy:y,r:10,fill:g?'#3dff86':'#ff4a3a',opacity:.55,filter:`url(#gl${u})`},s);
+   el('circle',{cx:x,cy:y,r:8,fill:lampOn?(g?`url(#lg${u})`:`url(#lr${u})`):(g?`url(#dg${u})`:`url(#dr${u})`)},s);
+   el('ellipse',{cx:x-2.5,cy:y-3,rx:3,ry:1.8,fill:'#fff',opacity:.45},s);
+  });
+ });
+ el('text',{x:W-24,y:H-10,'font-size':8,fill:shade(c,-.4),'text-anchor':'end'},s,COLORS[key].name+' '+COLORS[key].ko+' · 19" 12U');
+}
+function renderColor(){
+ drawImg('svgImg',curColor);
+ document.getElementById('imgCap').textContent=`${COLORS[curColor].name} ${COLORS[curColor].ko} (화면 근사색 ${COLORS[curColor].hex}) · 램프 ${lampOn?'점등':'소등'} 상태`;
+ document.querySelectorAll('[data-col]').forEach(b=>b.classList.toggle('on',b.dataset.col===curColor));
+ document.getElementById('lampChip').classList.toggle('on',lampOn);
+ if(window.__set3dColor)window.__set3dColor(COLORS[curColor].hex);
+}
+function setColor(k){curColor=k;renderColor();}
+document.getElementById('colorChips').innerHTML=Object.keys(COLORS).map(k=>`<button class="chip" data-col="${k}">${COLORS[k].name} ${COLORS[k].ko}</button>`).join(' ');
+document.getElementById('colorCards').innerHTML=Object.keys(COLORS).map(k=>`<div class="card swatch" data-col="${k}"><i style="background:${COLORS[k].hex}"></i><div><b>${COLORS[k].name}</b><div style="color:var(--muted);font-size:13px">${COLORS[k].ko} · 근사 ${COLORS[k].hex}</div></div></div>`).join('');
+document.getElementById('lampChip').onclick=()=>{lampOn=!lampOn;renderColor();};
+document.addEventListener('click',e=>{const b=e.target.closest('[data-col]');if(b)setColor(b.dataset.col);});
+renderColor();
+
+/* ================= 3D ================= */
+var threeStarted=false;
+function loadScript(src){return new Promise((ok,no)=>{const s=document.createElement('script');s.src=src;s.onload=ok;s.onerror=no;document.head.appendChild(s);});}
+async function init3D(){
+ const host=document.getElementById('v3d');
+ try{await loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js');
+     await loadScript('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js');}
+ catch(e){host.insertAdjacentHTML('beforeend','<p style="padding:80px 20px;text-align:center">3D 라이브러리를 불러오지 못했습니다 (인터넷 연결 필요).</p>');return;}
+ const Wd=()=>host.clientWidth,Ht=()=>host.clientHeight;
+ const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});renderer.setPixelRatio(Math.min(2,devicePixelRatio));renderer.setSize(Wd(),Ht());host.appendChild(renderer.domElement);
+ const scene=new THREE.Scene();
+ const cam=new THREE.PerspectiveCamera(32,Wd()/Ht(),5,20000);
+ const ctl=new THREE.OrbitControls(cam,renderer.domElement);ctl.enableDamping=true;
+ scene.add(new THREE.HemisphereLight(0xffffff,0x8090a0,.8));
+ const dl=new THREE.DirectionalLight(0xffffff,.75);dl.position.set(900,1800,1600);scene.add(dl);
+ const dl2=new THREE.DirectionalLight(0xffffff,.35);dl2.position.set(-1200,900,-1400);scene.add(dl2);
+ const M=(c,o={})=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.6,metalness:.1},o));
+ const edges=(m,c=0x000000,o=.25)=>{m.add(new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry),new THREE.LineBasicMaterial({color:c,transparent:true,opacity:o})));return m;};
+ const box=(w,h,d,x,y,z,mat,parent,e=true)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);(parent||scene).add(m);if(e)edges(m);return m;};
+ const cylZ=(r,h,x,y,z,mat,parent)=>{const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,32),mat);m.rotation.x=Math.PI/2;m.position.set(x,y,z);(parent||scene).add(m);return m;};
+ const cylY=(r,h,x,y,z,mat)=>{const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,24),mat);m.position.set(x,y,z);scene.add(m);return m;};
+ const G={door:new THREE.Group(),side:new THREE.Group()};scene.add(G.door);scene.add(G.side);G.door.visible=false;
+ /* rack NX-SH1200 : W600 D1000 H1200, 22U */
+ const RW=600,RD=1000,RH=1200,U0=100,UH=44.45,ZF=420,ZR=-380;
+ const frame=M(0x24272d,{roughness:.5,metalness:.35});
+ [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([a,b])=>{box(40,RH-60,40,a*(RW/2-20),60+(RH-60)/2,b*(RD/2-20),frame);cylY(22,44,a*(RW/2-45),22,b*(RD/2-70),M(0x111111));});
+ box(RW,40,RD,0,80,0,frame);box(RW,40,RD,0,RH-20,0,frame);
+ const sideM=M(0x2a2e35,{transparent:true,opacity:.22,depthWrite:false,metalness:.3});
+ [-1,1].forEach(a=>box(2,RH-100,RD-40,a*(RW/2-1),60+(RH-60)/2,0,sideM,G.side,false));
+ const doorM=M(0x1c1f24,{transparent:true,opacity:.42,depthWrite:false,metalness:.3});
+ box(RW-10,RH-110,3,0,60+(RH-60)/2,RD/2+2,doorM,G.door);
+ const railM=M(0x3a3f47,{metalness:.4,roughness:.45});
+ [ZF,ZR].forEach(z=>[-1,1].forEach(a=>box(18,22*UH,30,a*232.55,U0+11*UH,z-15,railM)));
+ const holeM=M(0x0d0f12);
+ for(let u=0;u<22;u++)[-1,1].forEach(a=>[6.35,22.25,38.1].forEach(o=>box(7,7,1,a*232.55,U0+u*UH+o,ZF+.6,holeM,scene,false)));
+ /* DIO panel group (local origin = panel top-centre, y up) */
+ const P=new THREE.Group();scene.add(P);
+ const panelM=M(0xB8B799,{roughness:.75,metalness:.05});
+ const PX=x=>x-W/2, PY=y=>-y;
+ box(W,H,2,0,-H/2,1,panelM,P);
+ const yel=M(0xFFE02E,{roughness:.5}),org=M(0xF2A43A,{roughness:.55}),red=M(0xd22f25,{roughness:.35}),blk=M(0x1d1d1d),bez=M(0xc8ced6,{metalness:.8,roughness:.3});
+ const lampG=M(0x1fb85a,{emissive:0x0f7a36,emissiveIntensity:.8,roughness:.3}),lampR=M(0xe03a2c,{emissive:0x8e1c15,emissiveIntensity:.8,roughness:.3});
+ COL.forEach(x=>{
+  box(50,14,.6,PX(x),PY(18),2.3,yel,P,false);
+  box(68,84,.4,PX(x),PY(74),2.2,org,P,false);
+  [-1,1].forEach(a=>box(6,84,32,PX(x)+a*31,PY(74),18,org,P));
+  box(68,8,22,PX(x),PY(112),13,org,P);
+  cylZ(14.5,10,PX(x),PY(67.5),7,blk,P);cylZ(20.45,9,PX(x),PY(67.5),15.5,red,P);
+  BY.forEach((y,j)=>{box(36,10,.6,PX(x),PY(y-20),2.3,yel,P,false);cylZ(11,9.2,PX(x),PY(y),6.6,bez,P);cylZ(8,9.6,PX(x),PY(y),7.2,j===0?lampG:lampR,P);});
+ });
+ /* rear parts — rear-layout coords mirrored to front coords */
+ const rail=M(0x9aa1ab,{metalness:.5,roughness:.4}),duct=M(0xd5dae2,{roughness:.7}),relB=M(0x2b2f36),relC=M(0xe9edf3,{transparent:true,opacity:.7}),
+   pdR=M(0xD4483F),pdB=M(0x2E62C8),adp=M(0xb9c0ca),cbM=M(0xe8eaee),tb=M(0xb9c0ca),pe=M(0x3A9A4A);
+ [[280.5,'D'],[338,'R'],[395.5,'D'],[450,'R']].forEach(([y,t])=>t==='D'?box(430,25,40,0,PY(y),-20,duct,P):box(430,35,7.5,0,PY(y),-3.75,rail,P));
+ const F=v=>PX(W-v);
+ COL.forEach(fx=>{let r=W-fx-43.6;
+   box(30,62,25,F(r+15),PY(338),-20,relB,P);box(27,35,36,F(r+15),PY(338),-50.5,relC,P);r+=30;
+   [pdR,pdB].forEach(m=>{box(28.6,58.1,15,F(r+14.3),PY(338),-15,adp,P);box(28.6,41,21.7,F(r+14.3),PY(338),-33.4,m,P);r+=28.6;});
+   r=W-fx-43.5;box(12,73,65,F(r+6),PY(450),-40,cbM,P);r+=12;
+   for(let t=0;t<14;t++)box(5.2,48.6,36.8,F(r+t*5.2+2.6),PY(450),-25.9,t===13?pe:tb,P);
+ });
+ TIE.forEach(x=>box(12,9,6,PX(x),PY(TIE_Y),-3,duct,P));
+ /* labels */
+ const labels=[];let showL=true;
+ const addL=(txt,local,cls)=>{const d=document.createElement('div');d.className='lbl '+(cls||'');d.textContent=txt;host.appendChild(d);labels.push({d,local:new THREE.Vector3(...local),world:false});};
+ addL('DIO Control Signal Panel (12U)',[0,70,30]);
+ COL.forEach((x,i)=>addL('CH'+(i+1),[PX(x),PY(2),26]));
+ addL('후면: 릴레이 · PTFIX · CP30 · 단자 X1~X4',[0,PY(470),-90],'rear');
+ const rk=document.createElement('div');rk.className='lbl rear';rk.textContent='넥시 NX-SH1200 · 22U · W600 × D1000 × H1200';host.appendChild(rk);
+ labels.push({d:rk,local:new THREE.Vector3(0,RH+20,0),world:true});
+ /* U position */
+ const sel=document.getElementById('uTop');for(let u=22;u>=12;u--)sel.insertAdjacentHTML('beforeend',`<option value="${u}">U${u} (U${u-11}~U${u})</option>`);
+ function placePanel(top){P.position.set(0,U0+top*UH-0.4,ZF+0.5);P.updateMatrixWorld();}
+ sel.value='22';placePanel(22);
+ /* colour */
+ window.__set3dColor=hex=>panelM.color.set(hex);window.__set3dColor(COLORS[curColor].hex);
+ document.getElementById('c3dColors').innerHTML=Object.keys(COLORS).map(k=>`<button data-col="${k}" class="${k===curColor?'on':''}">${COLORS[k].name}</button>`).join(' ');
+ /* views */
+ let curV='iso';
+ function setView(v){curV=v;const ty=P.position.y-H/2;
+  const o={iso:[[2300,1500,2900],[0,560,0]],front:[[0,ty,1900],[0,ty,0]],rear:[[-250,ty+150,-1800],[0,ty,0]],side:[[2700,700,250],[0,560,0]]}[v];cam.position.set(...o[0]);ctl.target.set(...o[1]);ctl.update();}
+ setView('iso');sel.onchange=()=>{placePanel(+sel.value);setView(curV);};
+ document.querySelectorAll('#ctl3d button').forEach(b=>b.addEventListener('click',()=>{
+  if(b.dataset.v){document.querySelectorAll('#ctl3d [data-v]').forEach(x=>x.classList.toggle('on',x===b));setView(b.dataset.v);}
+  else if(b.dataset.tg){const on=!b.classList.contains('on');b.classList.toggle('on',on);if(b.dataset.tg==='lbl')showL=on;else G[b.dataset.tg].visible=on;}}));
+ function resize(){cam.aspect=Wd()/Ht();cam.updateProjectionMatrix();renderer.setSize(Wd(),Ht());}
+ window.__resize3d=resize;addEventListener('resize',resize);
+ const v=new THREE.Vector3();
+ (function loop(){requestAnimationFrame(loop);ctl.update();renderer.render(scene,cam);
+  labels.forEach(l=>{v.copy(l.local);if(!l.world)v.applyMatrix4(P.matrixWorld);v.project(cam);const ok=showL&&v.z<1;l.d.style.display=ok?'block':'none';
+   if(ok){l.d.style.left=((v.x+1)/2*Wd())+'px';l.d.style.top=((1-v.y)/2*Ht())+'px';}});})();
+}
+
+if(location.hash.startsWith('#dd-'))openDD(location.hash.slice(4));
+if(CUST)document.querySelectorAll('.int').forEach(e=>e.remove());
+</script>
+</body>
+</html>
