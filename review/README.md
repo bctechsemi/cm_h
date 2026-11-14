@@ -16,3 +16,4 @@
 | 날짜 | 자료 | 원본 |
 |---|---|---|
 | 2026-11-11 | DIO Control Signal Panel Rev.A | `DIO Panel/DIO_Control_Signal_Panel_RevA_CustomerReview.html` (design/build_data.py로 생성) |
+| 2026-11-14 | DIO Control Signal Panel Option Review (Rev.B / Cost Down) | `DIO Panel/DIO_Panel_Option_Review_2026.html` (presentation_src/deck.src.html로 빌드) |

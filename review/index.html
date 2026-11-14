@@ -23,7 +23,7 @@ header{background:var(--blue-d);color:#fff}
 .hd h1{font-family:"Google Sans","Gowun Batang",serif;font-size:26px;margin:4px 0 0;letter-spacing:-.3px}
 .hd .sub{opacity:.82;font-size:13.5px;margin-top:4px}
 .edition{display:inline-block;background:#fff;color:var(--blue-d);border-radius:999px;padding:2px 10px;font-size:12px;font-weight:700}
-.brand{font-weight:700;letter-spacing:.08em;font-size:15px;border-top:2px solid #fff;border-bottom:2px solid #fff;padding:2px 6px}
+.brand{display:block;height:34px;width:auto;margin-bottom:4px}
 main{padding:26px 0 60px}
 h2{font-family:"Google Sans","Gowun Batang",serif;font-size:20px;margin:0 0 12px;color:var(--blue-d)}
 h3{font-size:16px;margin:26px 0 10px}
@@ -55,7 +55,7 @@ footer{color:var(--muted);font-size:12px;padding:20px 0 40px;border-top:1px soli
         <h1>BCT 검토 자료실</h1>
         <div class="sub">설계안 · 도면 · 확인 요청 자료를 한곳에서 확인하실 수 있습니다 — ㈜비씨테크</div>
       </div>
-      <div class="brand">BCT</div>
+      <img class="brand" src="assets/bct_logo_BCT_white.svg" alt="BCT">
     </div>
   </div>
 </header>
@@ -79,7 +79,11 @@ footer{color:var(--muted);font-size:12px;padding:20px 0 40px;border-top:1px soli
 <script>
 /* 새 자료는 이 목록 맨 위에 추가합니다. status: 'req' 검토 요청 · 'done' 확정 · 'old' 이전 판 */
 const DOCS=[
-  {date:'2026-11-11', title:'DIO Control Signal Panel', rev:'Rev.A', status:'req',
+  {date:'2026-11-14', title:'DIO Control Signal Panel — Option Review', rev:'Rev.B / Cost Down', status:'req',
+   href:'dio-control-signal-panel/OptionReview.html',
+   desc:'2CH 판넬 2장 기본형과 원가절감형 비교 프레젠테이션 — 회로 동작 시뮬레이터 · 판넬 구성 · 작업 범위',
+   ask:'선택 요청 3건 — 전장 구현 · 판넬 구성 · 작업 범위를 항목마다 기본형 / 원가절감형 중에서 골라 주십시오'},
+  {date:'2026-11-11', title:'DIO Control Signal Panel', rev:'Rev.A', status:'old',
    href:'dio-control-signal-panel/RevA.html',
    desc:'4챔버 · 세로 4열 · 19" 12U 신규 판넬 설계안 — BOM · 2D 도면 · 판넬 가공도 · 이미지 뷰 · 3D 모델 · 결선도 · 단자 배열',
    ask:'확인 요청 4건 — DI · DO 방식 (PNP / NPN) · STOP · EMO 신호 논리 · EMO 인터록 접점 · 전면 판넬 색상'},
