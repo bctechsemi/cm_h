@@ -18,3 +18,4 @@
 | 2026-11-11 | DIO Control Signal Panel Rev.A | `DIO Panel/DIO_Control_Signal_Panel_RevA_CustomerReview.html` (design/build_data.py로 생성) |
 | 2026-11-14 | DIO Control Signal Panel Option Review (Rev.B / Cost Down) | `DIO Panel/DIO_Panel_Option_Review_2026.html` (presentation_src/deck.src.html로 빌드) |
 | 2026-11-16 | DIO Control Signal Panel Rev.C (최종 확정) | `DIO Panel/DIO_Control_Signal_Panel_RevC_CustomerReview.html` (design/build_data_C.py로 생성) |
+| 2026-11-19 | DIO Control Signal Panel Rev.C — 장비 2대 (판넬 8장) 반영 | `DIO Panel/DIO_Control_Signal_Panel_RevC_CustomerReview.html` (design/build_data_C.py로 생성) |
