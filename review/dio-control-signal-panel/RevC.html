@@ -395,7 +395,7 @@ function pill(r){
   return `<span class="pill p-buy">${r.src}</span>`;
 }
 function renderBOM(){
-  if(CUST){let h='<thead><tr><th class="n">No</th><th>품명 / 규격</th><th>제조사</th><th class="n">수량</th><th>비고</th></tr></thead><tbody>';let cur=null,no=0;
+  if(CUST){let h='<thead><tr><th class="n">No</th><th>품명 / 규격</th><th>제조사</th><th class="n">수량 / 대<br><span style="font-weight:400;font-size:11px">(판넬 4장)</span></th><th>비고</th></tr></thead><tbody>';let cur=null,no=0;
     DATA.bom.forEach(r=>{no++;if(catFilter!=='all'&&r.cat!==catFilter)return;
       if(r.cat!==cur){cur=r.cat;h+=`<tr class="cat"><td colspan="5">${r.cat}. ${DATA.cats[r.cat]}</td></tr>`;}
       h+=`<tr><td class="n">${no}</td><td><div class="nm">${esc(r.name)}</div><div class="sp">${esc(r.spec)}</div></td><td>${r.mfr}</td><td class="n">${r.q} ${r.unit}</td><td>${esc(r.note||'')}</td></tr>`;});
